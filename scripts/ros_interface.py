@@ -27,7 +27,7 @@ from position_controller import PositionController
 
 class ROSControllerNode(object):
 
-    def __init__ (self):
+    def __init__(self):
         """ROS interface for controlling the Parrot ARDrone in the Vicon Lab."""
         
         self.pub_vel = rospy.Publisher('/cmd_vel_RHC', Twist, queue_size = 32)

@@ -20,30 +20,30 @@ class ROSDesiredPositionGenerator(object):
     """ROS interface for publishing desired positions."""
     # write code here for desired position trajectory generator
 
-    def __init__(object):
-        object.i = 0
+    def __init__(self):
+        self.i = 0
         
-        object.pub_pos_des = rospy.Publisher('/desired_positions', PoseStamped, queue_size = 32)
-        object.check = rospy.Subscriber('/check_mate', String, object.send)
+        self.pub_pos_des = rospy.Publisher('/desired_positions', PoseStamped, queue_size = 32)
+        self.check = rospy.Subscriber('/check_mate', String, self.send)
         
-    #def cord(object):
-        object.X = np.linspace(-5, 5, num=100)
-        object.Y = np.linspace(-5, 5, num=100)
-        object.Z = np.linspace(2, 5, num=100)
+    #def cord(self):
+        self.X = np.linspace(-5, 5, num=100)
+        self.Y = np.linspace(-5, 5, num=100)
+        self.Z = np.linspace(2, 5, num=100)
         
 
-    def send(object,message):
+    def send(self,message):
         msg = PoseStamped()
-        msg.pose.position.x = object.X[object.i]
-        msg.pose.position.y = object.Y[object.i]
-        msg.pose.position.z = object.Z[object.i]
+        msg.pose.position.x = self.X[self.i]
+        msg.pose.position.y = self.Y[self.i]
+        msg.pose.position.z = self.Z[self.i]
         msg.pose.orientation.x = 0
         msg.pose.orientation.y = 0
         msg.pose.orientation.z = 0
         msg.pose.orientation.w = 1.0
-        if(message=="true"):
-            object.i = object.i + 1
-            object.pub_pos_des.publish(msg)
+        if(message.data=="true"):
+            self.i = self.i + 1
+            self.pub_pos_des.publish(msg)
         
     pass
 

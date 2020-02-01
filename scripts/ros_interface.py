@@ -31,7 +31,7 @@ class ROSControllerNode(object):
         """ROS interface for controlling the Parrot ARDrone in the Vicon Lab."""
         
         self.pub_vel = rospy.Publisher('/cmd_vel_RHC', Twist, queue_size = 32)
-
+        #self.random_test = rospy.Publisher('/random_stuff', Twist, queue_size = 32)
         self.vicon = rospy.Subscriber('/vicon/ARDroneCarre/ARDroneCarre', TransformStamped, self.update_vicon)
         
         self.pub_pos_des = rospy.Subscriber('/desired_positions', PoseStamped, self.pos_des)
@@ -51,7 +51,10 @@ class ROSControllerNode(object):
         self.z_trans = 0.0
         
         print("hello")
-        self.pub_check.publish("true")
+        
+        new_message=String()
+        new_message.data="true"
+        self.pub_check.publish(new_message)
 
     #x_trans = 0
     #self.x_trans = 5
@@ -103,7 +106,21 @@ class ROSControllerNode(object):
         self.y_rotat_des = pub_pos_des.pose.orientation.y
         self.z_rotat_des = pub_pos_des.pose.orientation.z       
         self.w_rotat_des = pub_pos_des.pose.orientation.w
+
+        
         self.unknow()
+        self.run_stuff()
+        test_var=0
+        """
+        while(test_var==0):
+            if (((self.x_des - 0.10) < self.x_trans < (self.x_des + 0.10)) and 
+        ((self.y_des - 0.10) < self.y_trans < (self.y_des + 0.10)) and
+        ((self.z_des - 0.10) < self.z_trans < (self.z_des + 0.10))):
+                self.pub_check.publish("true")
+                test_var=1
+            else:
+                self.pub_check.publish("false")
+        """
     
     # Obtain value from VICON
     def update_vicon(self,vicon_data_msg):
@@ -149,6 +166,8 @@ if __name__ == '__main__':
     # write code to create ROSControllerNode
     rospy.init_node('ros_controller')
     obj=ROSControllerNode()
-    obj.pub_check.publish("true")
+    print("hello")
+    obj.run_stuff()
+    #obj.pub_check.publish("true")
     rospy.spin()
     

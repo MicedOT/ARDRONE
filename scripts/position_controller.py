@@ -18,15 +18,15 @@ class PositionController(object):
 
     
 
-    def __init__(self, x_old, y_old, z_old, x_trans, y_trans, z_trans, w, x_d, y_d, z_d, w_d):
-        self.a = 0
+    def __init__(self, x_old, y_old, z_old, x_trans, y_trans, z_trans, rotat, x_d, y_d, z_d, rotat_d):
+        
         self.g = 9.81
         self.angle_yaw = 0
         self.t = 1
 
-        self.C_x = 1
+        self.C_x = 0.8
         self.w_nx = 1
-        self.C_y = 1
+        self.C_y = 0.8
         self.w_ny = 1
         self.x_old = x_old
         self.y_old = y_old
@@ -36,7 +36,7 @@ class PositionController(object):
 
         #self.x = a
         #self.y = a
-        euler_angle = euler_from_quaternion(w)
+        euler_angle = euler_from_quaternion(rotat)
         self.angle_roll = euler_angle[0]
         self.angle_pitch = euler_angle[1]
         self.angle_yaw = euler_angle[2]
@@ -49,7 +49,7 @@ class PositionController(object):
         self.x_d = x_d
         self.y_d = y_d
         self.z_d = z_d
-        self.w_d = w_d      
+        self.rotat_d = rotat_d      
         
 
     def member(self):
@@ -63,8 +63,9 @@ class PositionController(object):
         x_velocity_d = (self.x_d-self.x_trans)/self.t
         y_velocity_d = (self.y_d-self.y_trans)/self.t	
         z_velocity_d = (self.z_d-self.z_trans)/self.t
-
-        z_acceleration =  (z_velocity_d-z_velocity)/self.t
+        
+        #z_acceleration =  (z_velocity_d-z_velocity)/self.t
+        z_acceleration=0
         f = ((z_acceleration)+self.g) / (np.cos(self.angle_pitch)*np.cos(self.angle_roll))
         
         # Command Acceleration

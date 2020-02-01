@@ -27,9 +27,9 @@ class ROSDesiredPositionGenerator(object):
         self.check = rospy.Subscriber('/check_mate', String, self.send)
         
     #def cord(self):
-        self.X = np.linspace(-5, 5, num=100)
-        self.Y = np.linspace(-5, 5, num=100)
-        self.Z = np.linspace(2, 5, num=100)
+        self.X = np.linspace(-1, 1, num=120)
+        self.Y = np.linspace(-1, 1, num=120)
+        self.Z = np.linspace(1, 2, num=120)
         
 
     def send(self,message):
@@ -43,7 +43,7 @@ class ROSDesiredPositionGenerator(object):
         msg.pose.orientation.w = 1.0
         if(message.data=="true"):
             self.i = self.i + 1
-            self.pub_pos_des.publish(msg)
+        self.pub_pos_des.publish(msg)
         
     pass
 

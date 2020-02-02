@@ -18,7 +18,7 @@ class PositionController(object):
 
     
 
-    def __init__(self, position_controller_x_translation_old, position_controller_y_translation_old, position_controller_z_translation_old, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired):
+    def __init__(self, position_controller_x_translation_old, position_controller_y_translation_old, position_controller_z_translation_old, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired,z_velocity_old):
         
         self.g = 9.81
         self.angle_yaw = 0
@@ -31,6 +31,9 @@ class PositionController(object):
         self.position_controller_x_translation_old = position_controller_x_translation_old
         self.position_controller_y_translation_old = position_controller_y_translation_old
         self.position_controller_z_translation_old = position_controller_z_translation_old
+        
+        self.position_controller_z_velocity_old = z_velocity_old
+
 
         #self.z_velocitposition_controller_y_translation_old = z_velocitposition_controller_y_translation_old
 
@@ -64,8 +67,8 @@ class PositionController(object):
         velocity_y_desired = (self.position_controller_y_translation_desired-self.position_controller_y_translation)/self.t	
         velocity_z_desired = (self.position_controller_z_translation_desired-self.position_controller_z_translation)/self.t
         
-        #z_acceleration =  (velocity_z_desired-z_velocity)/self.t
-        z_acceleration=0
+        z_acceleration =  (z_velocity-self.position_controller_z_velocity_old)/self.t
+        #z_acceleration=0
         f = ((z_acceleration)+self.g) / (np.cos(self.angle_pitch)*np.cos(self.angle_roll))
         
         # Command Acceleration
@@ -102,7 +105,7 @@ class PositionController(object):
         
         #self.z_velocitposition_controller_y_translation_old=self.z_velocity 
 	print("Pass Complete")
-        list = [roll_cB, pitch_cB, yaw_cB, velocity_z_desired]
+        list = [roll_cB, pitch_cB, yaw_cB, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity]
 
         return list
 

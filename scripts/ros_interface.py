@@ -63,9 +63,9 @@ class ROSControllerNode(object):
         self.rotation_z_desired=0.0
         self.rotation_w_desired=0.0
 
-        self.time_interval=1.0
-        self.current_time=0
-        self.old_time=0
+        self.time_interval=0
+        self.current_time=rospy.get_time()
+        self.old_time=rospy.get_time()
 
 
         
@@ -83,7 +83,7 @@ class ROSControllerNode(object):
         self.rotation=np.array([self.rotation_x,self.rotation_y,self.rotation_z,self.rotation_w])
         self.rotation_desired=np.array([self.rotation_x_desired,self.rotation_y_desired,self.rotation_z_desired,self.rotation_w_desired])
         
-        current_time=self.current_time
+        current_time=rospy.get_time()
         self.time_interval=current_time-self.old_time
         self.old_time=current_time
         postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired, self.z_velocity_old,self.time_interval)
@@ -143,7 +143,7 @@ class ROSControllerNode(object):
         self.rotation_z = vicon_data_msg.transform.rotation.z
         self.rotation_w = vicon_data_msg.transform.rotation.w
 
-        self.current_time=self.header.stamp
+        self.current_time=vicon_data_msg.header.stamp
 
     def store_old_values(self,old_x,old_y,old_z,z_velocity_old):
         self.translation_x_old=old_x

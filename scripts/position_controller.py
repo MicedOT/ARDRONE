@@ -23,6 +23,7 @@ class PositionController(object):
         self.g = 9.81
         self.angle_yaw = 0
         self.t = position_controller_time_interval
+	print(self.t)
 
         self.damping_x = 0.8
         self.natural_frequency_x = 1
@@ -106,7 +107,7 @@ class PositionController(object):
         #self.position_controller_z_translation_old=self.z
         
         #self.z_velocitposition_controller_y_translation_old=self.z_velocity 
-	print("Pass Complete")
+	#print("Pass Complete")
         list = [roll_cB, pitch_cB, yaw_cB, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity]
 
         return list

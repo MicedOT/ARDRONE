@@ -18,7 +18,7 @@ class PositionController(object):
 
     
 
-    def __init__(self, position_controller_position_controller_x_translationlation_old, position_controller_position_controller_y_translationlation_old, position_controller_position_controller_z_translationlation_old, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired):
+    def __init__(self, position_controller_x_translationlation_old, position_controller_y_translationlation_old, position_controller_z_translationlation_old, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired):
         
         self.g = 9.81
         self.angle_yaw = 0
@@ -28,11 +28,11 @@ class PositionController(object):
         self.natural_frequency_x = 1
         self.damping_y = 0.8
         self.natural_frequency_y = 1
-        self.position_controller_position_controller_x_translationlation_old = position_controller_position_controller_x_translationlation_old
-        self.position_controller_position_controller_y_translationlation_old = position_controller_position_controller_y_translationlation_old
-        self.position_controller_position_controller_z_translationlation_old = position_controller_position_controller_z_translationlation_old
+        self.position_controller_x_translationlation_old = position_controller_x_translationlation_old
+        self.position_controller_y_translationlation_old = position_controller_y_translationlation_old
+        self.position_controller_z_translationlation_old = position_controller_z_translationlation_old
 
-        #self.z_velocitposition_controller_position_controller_y_translationlation_old = z_velocitposition_controller_position_controller_y_translationlation_old
+        #self.z_velocitposition_controller_y_translationlation_old = z_velocitposition_controller_y_translationlation_old
 
         #self.x = a
         #self.y = a
@@ -54,9 +54,9 @@ class PositionController(object):
 
     def member(self):
 
-        x_velocity = (self.position_controller_x_translation-self.position_controller_position_controller_x_translationlation_old)/self.t
-        y_velocity = (self.position_controller_y_translation-self.position_controller_position_controller_y_translationlation_old)/self.t
-        z_velocity = (self.position_controller_z_translation-self.position_controller_position_controller_z_translationlation_old)/self.t
+        x_velocity = (self.position_controller_x_translation-self.position_controller_x_translationlation_old)/self.t
+        y_velocity = (self.position_controller_y_translation-self.position_controller_y_translationlation_old)/self.t
+        z_velocity = (self.position_controller_z_translation-self.position_controller_z_translationlation_old)/self.t
         
 
         # Desired velocity
@@ -96,11 +96,11 @@ class PositionController(object):
         pitch_cB = -roll_c*np.sin(self.angle_yaw) + roll_c*(np.cos(self.angle_yaw))
         yaw_cB = 0
 
-        #self.position_controller_position_controller_x_translationlation_old=self.x
-        #self.position_controller_position_controller_y_translationlation_old=self.y
-        #self.position_controller_position_controller_z_translationlation_old=self.z
+        #self.position_controller_x_translationlation_old=self.x
+        #self.position_controller_y_translationlation_old=self.y
+        #self.position_controller_z_translationlation_old=self.z
         
-        #self.z_velocitposition_controller_position_controller_y_translationlation_old=self.z_velocity 
+        #self.z_velocitposition_controller_y_translationlation_old=self.z_velocity 
 	print("Pass Complete")
         list = [roll_cB, pitch_cB, yaw_cB, velocity_z_desired]
 

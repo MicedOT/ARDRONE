@@ -18,11 +18,11 @@ class PositionController(object):
 
     
 
-    def __init__(self, position_controller_x_translation_old, position_controller_y_translation_old, position_controller_z_translation_old, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired,z_velocity_old):
+    def __init__(self, position_controller_x_translation_old, position_controller_y_translation_old, position_controller_z_translation_old, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired,z_velocity_old,position_controller_time_interval):
         
         self.g = 9.81
         self.angle_yaw = 0
-        self.t = 5
+        self.t = position_controller_time_interval
 
         self.damping_x = 0.8
         self.natural_frequency_x = 1
@@ -43,6 +43,7 @@ class PositionController(object):
         self.angle_roll = euler_angle[0]
         self.angle_pitch = euler_angle[1]
         self.angle_yaw = euler_angle[2]
+	
 
         self.position_controller_x_translation = position_controller_x_translation
         self.position_controller_y_translation = position_controller_y_translation
@@ -61,6 +62,7 @@ class PositionController(object):
         y_velocity = (self.position_controller_y_translation-self.position_controller_y_translation_old)/self.t
         z_velocity = (self.position_controller_z_translation-self.position_controller_z_translation_old)/self.t
         
+	print(self.angle_pitch," ",self.angle_roll," ",self.angle_yaw)
 
         # Desired velocity
         velocity_x_desired = (self.position_controller_x_translation_desired-self.position_controller_x_translation)/self.t

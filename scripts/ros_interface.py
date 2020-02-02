@@ -58,47 +58,36 @@ class ROSControllerNode(object):
         self.rotation_z=0.0
         self.rotation_w=1.0
         
+        self.rotation_x_desired=0.0
+        self.rotation_y_desired=0.0
+        self.rotation_z_desired=0.0
+        self.rotation_w_desired=0.0
+
+        self.time_interval=1.0
+        self.current_time=0
+        self.old_time=0
+
+
+        
         
         new_message=String()
         new_message.data="true"
         self.pub_check.publish(new_message)
 
-        # Run the onboard controller at 200 Hz
-        self.onboard_loop_frequency = 200.
-        
-        
+       
 
-        # Run this ROS node at the onboard loop frequency
-        #self.run_pub_cmd_vel = rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_stuff)
-        rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_stuff)
 
-    #translation_x = 0
-    #self.translation_x = 5
-
-    #print (self.translation_x)
-    #print (translation_x)
     
     def process_commands(self):
 
         self.rotation=np.array([self.rotation_x,self.rotation_y,self.rotation_z,self.rotation_w])
-        self.rotation_desired=np.array([self.rotation_x_desired,self.rotation_y_desired,self.rotation_z_desired,self.rotation_w_des])
+        self.rotation_desired=np.array([self.rotation_x_desired,self.rotation_y_desired,self.rotation_z_desired,self.rotation_w_desired])
         
-        postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired, self.z_velocity_old)
-        
-        
-        
-        #postcom.translation_x = self.translation_x
-        #postcom.translation_y = self.translation_y
-        #postcom.translation_z = self.translation_z
-        
-        # roatation? 
-        #postcom.rotation_x = self.rotation_x
-        #postcom.rotation_y = self.rotation_y
-        #postcom.rotation_z = self.rotation_z
-        #postcom.rotation_w = self.rotation_w
+        current_time=self.current_time
+        self.time_interval=current_time-self.old_time
+        self.old_time=current_time
+        postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired, self.z_velocity_old,self.time_interval)
 
-
-    
         returnvalue= postcom.member()
         roll = returnvalue[0]
         pitch = returnvalue[1]
@@ -108,6 +97,7 @@ class ROSControllerNode(object):
         old_y = returnvalue[5]
         old_z = returnvalue[6]
         old_velocity_z = returnvalue[7]
+        
         yaw_dot = 0
 
 
@@ -126,7 +116,7 @@ class ROSControllerNode(object):
         self.rotation_x_desired = desired_position_data.pose.orientation.x
         self.rotation_y_desired = desired_position_data.pose.orientation.y
         self.rotation_z_desired = desired_position_data.pose.orientation.z       
-        self.rotation_w_des = desired_position_data.pose.orientation.w
+        self.rotation_w_desired = desired_position_data.pose.orientation.w
 
         
         
@@ -152,6 +142,8 @@ class ROSControllerNode(object):
         self.rotation_y = vicon_data_msg.transform.rotation.y
         self.rotation_z = vicon_data_msg.transform.rotation.z
         self.rotation_w = vicon_data_msg.transform.rotation.w
+
+        self.current_time=self.header.stamp
 
     def store_old_values(self,old_x,old_y,old_z,z_velocity_old):
         self.translation_x_old=old_x

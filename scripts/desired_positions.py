@@ -34,6 +34,9 @@ class ROSDesiredPositionGenerator(object):
 
     def send(self,message):
         msg = PoseStamped()
+	
+	msg.header.stamp = rospy.Time.now()
+
         msg.pose.position.x = self.X[self.desired_position_counter]
         msg.pose.position.y = self.Y[self.desired_position_counter]
         msg.pose.position.z = self.Z[self.desired_position_counter]

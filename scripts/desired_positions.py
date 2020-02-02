@@ -21,7 +21,7 @@ class ROSDesiredPositionGenerator(object):
     # write code here for desired position trajectory generator
 
     def __init__(self):
-        self.i = 0
+        self.desired_position_counter = 0
         
         self.pub_pos_des = rospy.Publisher('/desired_positions', PoseStamped, queue_size = 32)
         self.check = rospy.Subscriber('/check_mate', String, self.send)
@@ -34,16 +34,16 @@ class ROSDesiredPositionGenerator(object):
 
     def send(self,message):
         msg = PoseStamped()
-        msg.pose.position.x = self.X[self.i]
-        msg.pose.position.y = self.Y[self.i]
-        msg.pose.position.z = self.Z[self.i]
+        msg.pose.position.x = self.X[self.desired_position_counter]
+        msg.pose.position.y = self.Y[self.desired_position_counter]
+        msg.pose.position.z = self.Z[self.desired_position_counter]
         msg.pose.orientation.x = 0
         msg.pose.orientation.y = 0
         msg.pose.orientation.z = 0
         msg.pose.orientation.w = 1.0
         if(message.data=="true"):
-            self.i = self.i + 1
-        self.pub_pos_des.publish(msg)
+            self.desired_position_counter = self.desired_position_counter + 1
+            self.pub_pos_des.publish(msg)
         
     pass
 

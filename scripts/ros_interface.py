@@ -17,6 +17,7 @@ from __future__ import division, print_function, absolute_import
 import roslib
 import rospy
 import numpy as np
+import time
 
 # Import class that computes the desired positions
 from tf.transformations import euler_from_quaternion
@@ -33,22 +34,27 @@ class ROSControllerNode(object):
         self.pub_vel = rospy.Publisher('/cmd_vel_RHC', Twist, queue_size = 32)
         #self.random_test = rospy.Publisher('/random_stuff', Twist, queue_size = 32)
         self.vicon = rospy.Subscriber('/vicon/ARDroneCarre/ARDroneCarre', TransformStamped, self.update_vicon)
-        
-        self.pub_pos_des = rospy.Subscriber('/desired_positions', PoseStamped, self.pos_des)
+        self.start_value = rospy.Subscriber('/start_execution', String, self.run_stuff)
+        self.desired_position_data = rospy.Subscriber('/desired_positions', PoseStamped, self.update_desired_position)
 
         self.pub_check = rospy.Publisher('/check_mate', String, queue_size = 10)
         
-        self.x_old = 0.0
-        self.y_old = 0.0
-        self.z_old = 0.0
+        self.translation_x_old = 0.0
+        self.translation_y_old = 0.0
+        self.translation_z_old = 0.0
 
-        self.x_des = 0.0
-        self.y_des = 0.0
-        self.z_des = 0.0
+        self.translation_x_desired = 0.0
+        self.translation_y_desired = 0.0
+        self.translation_z_desired = 0.0
 
-        self.x_trans = 0.0
-        self.y_trans = 0.0
-        self.z_trans = 0.0
+        self.translation_x = 0.0
+        self.translation_y = 0.0
+        self.translation_z = 0.0
+
+        self.rotation_x=0.0
+        self.rotation_y=0.0
+        self.rotation_z=0.0
+        self.rotation_w=1.0
         
         print("hello")
         
@@ -56,29 +62,29 @@ class ROSControllerNode(object):
         new_message.data="true"
         self.pub_check.publish(new_message)
 
-    #x_trans = 0
-    #self.x_trans = 5
+    #translation_x = 0
+    #self.translation_x = 5
 
-    #print (self.x_trans)
-    #print (x_trans)
+    #print (self.translation_x)
+    #print (translation_x)
     
-    def unknow(self):
+    def process_commands(self):
 
-        self.rotat=(self.x_rotat,self.y_rotat,self.z_rotat,self.w_rotat)
-        self.des_rotat=(self.x_rotat_des,self.y_rotat_des,self.z_rotat_des,self.w_rotat_des)
-        postcom = PositionController(self.x_old,self.y_old,self.z_old,self.x_trans, self.y_trans, self.z_trans, self.rotat, self.x_des, self.y_des, self.z_des, self.des_rotat)
+        self.rotation=np.array([self.rotation_x,self.rotation_y,self.rotation_z,self.rotation_w])
+        self.rotation_desired=np.array([self.rotation_x_desired,self.rotation_y_desired,self.rotation_z_desired,self.rotation_w_des])
+        postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired)
         
         
         
-        #postcom.x_trans = self.x_trans
-        #postcom.y_trans = self.y_trans
-        #postcom.z_trans = self.z_trans
+        #postcom.translation_x = self.translation_x
+        #postcom.translation_y = self.translation_y
+        #postcom.translation_z = self.translation_z
         
         # roatation? 
-        #postcom.x_rotat = self.x_rotat
-        #postcom.y_rotat = self.y_rotat
-        #postcom.z_rotat = self.z_rotat
-        #postcom.w_rotat = self.w_rotat
+        #postcom.rotation_x = self.rotation_x
+        #postcom.rotation_y = self.rotation_y
+        #postcom.rotation_z = self.rotation_z
+        #postcom.rotation_w = self.rotation_w
 
 
     
@@ -98,24 +104,23 @@ class ROSControllerNode(object):
 	
     
     # Take desired position value
-    def pos_des(self,pub_pos_des):
-        self.x_des = pub_pos_des.pose.position.x
-        self.y_des = pub_pos_des.pose.position.y
-        self.z_des = pub_pos_des.pose.position.z
-        self.x_rotat_des = pub_pos_des.pose.orientation.x
-        self.y_rotat_des = pub_pos_des.pose.orientation.y
-        self.z_rotat_des = pub_pos_des.pose.orientation.z       
-        self.w_rotat_des = pub_pos_des.pose.orientation.w
+    def update_desired_position(self,desired_position_data):
+        self.translation_x_desired = desired_position_data.pose.position.x
+        self.translation_y_desired = desired_position_data.pose.position.y
+        self.translation_z_desired = desired_position_data.pose.position.z
+        self.rotation_x_desired = desired_position_data.pose.orientation.x
+        self.rotation_y_desired = desired_position_data.pose.orientation.y
+        self.rotation_z_desired = desired_position_data.pose.orientation.z       
+        self.rotation_w_des = desired_position_data.pose.orientation.w
 
         
-        self.unknow()
-        self.run_stuff()
+        
         test_var=0
         """
         while(test_var==0):
-            if (((self.x_des - 0.10) < self.x_trans < (self.x_des + 0.10)) and 
-        ((self.y_des - 0.10) < self.y_trans < (self.y_des + 0.10)) and
-        ((self.z_des - 0.10) < self.z_trans < (self.z_des + 0.10))):
+            if (((self.translation_x_desired - 0.10) < self.translation_x < (self.translation_x_desired + 0.10)) and 
+        ((self.translation_y_desired - 0.10) < self.translation_y < (self.translation_y_desired + 0.10)) and
+        ((self.translation_z_desired - 0.10) < self.translation_z < (self.translation_z_desired + 0.10))):
                 self.pub_check.publish("true")
                 test_var=1
             else:
@@ -124,19 +129,19 @@ class ROSControllerNode(object):
     
     # Obtain value from VICON
     def update_vicon(self,vicon_data_msg):
-        self.x_trans = vicon_data_msg.transform.translation.x
-        self.y_trans = vicon_data_msg.transform.translation.y
-        self.z_trans = vicon_data_msg.transform.translation.z
+        self.translation_x = vicon_data_msg.transform.translation.x
+        self.translation_y = vicon_data_msg.transform.translation.y
+        self.translation_z = vicon_data_msg.transform.translation.z
            
-        self.x_rotat = vicon_data_msg.transform.rotation.x
-        self.y_rotat = vicon_data_msg.transform.rotation.y
-        self.z_rotat = vicon_data_msg.transform.rotation.z
-        self.w_rotat = vicon_data_msg.transform.rotation.w
+        self.rotation_x = vicon_data_msg.transform.rotation.x
+        self.rotation_y = vicon_data_msg.transform.rotation.y
+        self.rotation_z = vicon_data_msg.transform.rotation.z
+        self.rotation_w = vicon_data_msg.transform.rotation.w
 
     def store_old_values(self):
-        self.x_old=self.x_trans
-        self.y_old=self.y_trans
-        self.z_old=self.z_trans
+        self.translation_x_old=self.translation_x
+        self.translation_y_old=self.translation_y
+        self.translation_z_old=self.translation_z
 
         
     #
@@ -151,23 +156,28 @@ class ROSControllerNode(object):
     # write code here to define node publishers and subscribers
     # publish to /cmd_vel topic
     # subscribe to /vicon/ARDroneCarre/ARDroneCarre for position and attitude feedback
-    def run_stuff(self):
-        
-        if (((self.x_des - 0.10) < self.x_trans < (self.x_des + 0.10)) and 
-    ((self.y_des - 0.10) < self.y_trans < (self.y_des + 0.10)) and
-    ((self.z_des - 0.10) < self.z_trans < (self.z_des + 0.10))):
-            self.pub_check.publish("true")
-        else:
-            self.pub_check.publish("false")
+    def run_stuff(self,incoming):
+        while(True):
+            if (((self.translation_x_desired - 0.50) < self.translation_x < (self.translation_x_desired + 0.50)) and 
+        ((self.translation_y_desired - 0.50) < self.translation_y < (self.translation_y_desired + 0.50)) and
+        ((self.translation_z_desired - 0.50) < self.translation_z < (self.translation_z_desired + 0.50))):
+                self.pub_check.publish("true")
+            else:
+                self.pub_check.publish("false")
+            
+            self.process_commands()
+            time.sleep(0.01)
+            
+
+
+
     pass
     
+
 
 if __name__ == '__main__':
     # write code to create ROSControllerNode
     rospy.init_node('ros_controller')
-    obj=ROSControllerNode()
-    print("hello")
-    obj.run_stuff()
-    #obj.pub_check.publish("true")
+    ROSControllerNode()
     rospy.spin()
     

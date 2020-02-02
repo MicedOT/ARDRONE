@@ -43,6 +43,8 @@ class ROSControllerNode(object):
         self.translation_y_old = 0.0
         self.translation_z_old = 0.0
 
+        self.z_velocity_old = 0.0
+
         self.translation_x_desired = 0.0
         self.translation_y_desired = 0.0
         self.translation_z_desired = 0.0
@@ -56,11 +58,19 @@ class ROSControllerNode(object):
         self.rotation_z=0.0
         self.rotation_w=1.0
         
-        print("hello")
         
         new_message=String()
         new_message.data="true"
         self.pub_check.publish(new_message)
+
+        # Run the onboard controller at 200 Hz
+        self.onboard_loop_frequency = 200.
+        
+        
+
+        # Run this ROS node at the onboard loop frequency
+        #self.run_pub_cmd_vel = rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_stuff)
+        rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_stuff)
 
     #translation_x = 0
     #self.translation_x = 5
@@ -72,7 +82,8 @@ class ROSControllerNode(object):
 
         self.rotation=np.array([self.rotation_x,self.rotation_y,self.rotation_z,self.rotation_w])
         self.rotation_desired=np.array([self.rotation_x_desired,self.rotation_y_desired,self.rotation_z_desired,self.rotation_w_des])
-        postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired)
+        
+        postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired, self.z_velocity_old)
         
         
         
@@ -93,12 +104,16 @@ class ROSControllerNode(object):
         pitch = returnvalue[1]
         yaw = returnvalue[2]
         z_dot = returnvalue[3]
+        old_x = returnvalue[4]
+        old_y = returnvalue[5]
+        old_z = returnvalue[6]
+        old_velocity_z = returnvalue[7]
         yaw_dot = 0
 
 
         self.set_vel(roll, pitch, z_dot, yaw_dot)
 
-        self.store_old_values()
+        self.store_old_values(old_x,old_y,old_z,old_velocity_z)
     
      	
 	
@@ -138,10 +153,12 @@ class ROSControllerNode(object):
         self.rotation_z = vicon_data_msg.transform.rotation.z
         self.rotation_w = vicon_data_msg.transform.rotation.w
 
-    def store_old_values(self):
-        self.translation_x_old=self.translation_x
-        self.translation_y_old=self.translation_y
-        self.translation_z_old=self.translation_z
+    def store_old_values(self,old_x,old_y,old_z,z_velocity_old):
+        self.translation_x_old=old_x
+        self.translation_y_old=old_y
+        self.translation_z_old=old_z
+
+        self.z_velocity_old= z_velocity_old
 
         
     #
@@ -158,15 +175,15 @@ class ROSControllerNode(object):
     # subscribe to /vicon/ARDroneCarre/ARDroneCarre for position and attitude feedback
     def run_stuff(self,incoming):
         while(True):
-            if (((self.translation_x_desired - 0.50) < self.translation_x < (self.translation_x_desired + 0.50)) and 
-        ((self.translation_y_desired - 0.50) < self.translation_y < (self.translation_y_desired + 0.50)) and
-        ((self.translation_z_desired - 0.50) < self.translation_z < (self.translation_z_desired + 0.50))):
+            if (((self.translation_x_desired - 0.15) < self.translation_x < (self.translation_x_desired + 0.15)) and 
+        ((self.translation_y_desired - 0.15) < self.translation_y < (self.translation_y_desired + 0.15)) and
+        ((self.translation_z_desired - 0.15) < self.translation_z < (self.translation_z_desired + 0.15))):
                 self.pub_check.publish("true")
             else:
                 self.pub_check.publish("false")
             
             self.process_commands()
-            time.sleep(0.01)
+            #time.sleep(0.01)
             
 
 

@@ -81,6 +81,7 @@ class PositionController(object):
         # Define damping ratio
         damping_rt_x = 0.8
         damping_rt_y = 0.8
+        #damp_z=0.8
         
         # Define natural frequency
         w_n_x = 1
@@ -167,7 +168,7 @@ class PositionController(object):
 
         # Climb rate (vertical velocity) command
         tau_z = 0.08  #rise_time_z/2.2 
-        climb_rate_command = damp_z*(1.0/tau_z)*(self.desired_z - self.current_trans_z)
+        climb_rate_command = (1.0/tau_z)*(self.desired_z - self.current_trans_z)
         if climb_rate_command >= 2:
             climb_rate_command = 2
         

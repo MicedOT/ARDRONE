@@ -110,7 +110,7 @@ class ROSDesiredPositionGenerator(object):
         self.msg_string = ' '.join(map(str, msg_array_linear))
         # Change Trajectory
         # For spiral trajectory, please uncomment the folowing line (optional: comment the above line of code): 
-        #self.msg_string = ' '.join(map(str, msg_array_spiral))
+        self.msg_string = ' '.join(map(str, msg_array_spiral))
         # Publish the desired trajectory msg to to topic des_pos
         self.pub_des_pos.publish(self.msg_string)
 

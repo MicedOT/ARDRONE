@@ -34,7 +34,7 @@ class ROSControllerNode(object):
         self.pub_vel = rospy.Publisher('/cmd_vel_RHC', Twist, queue_size = 32)
         #self.random_test = rospy.Publisher('/random_stuff', Twist, queue_size = 32)
         self.vicon = rospy.Subscriber('/vicon/ARDroneCarre/ARDroneCarre', TransformStamped, self.update_vicon)
-        self.start_value = rospy.Subscriber('/start_execution', String, self.run_stuff)
+        #self.start_value = rospy.Subscriber('/start_execution', String, self.run_stuff)
         self.desired_position_data = rospy.Subscriber('/desired_positions', PoseStamped, self.update_desired_position)
 
         self.pub_check = rospy.Publisher('/check_mate', String, queue_size = 10)
@@ -47,7 +47,7 @@ class ROSControllerNode(object):
 
         self.translation_x_desired = 0.0
         self.translation_y_desired = 0.0
-        self.translation_z_desired = 0.0
+        self.translation_z_desired = 2.0
 
         self.translation_x = 0.0
         self.translation_y = 0.0
@@ -61,7 +61,7 @@ class ROSControllerNode(object):
         self.rotation_x_desired=0.0
         self.rotation_y_desired=0.0
         self.rotation_z_desired=0.0
-        self.rotation_w_desired=0.0
+        self.rotation_w_desired=1.0
 
         self.time_interval=0
         self.current_time=rospy.get_time()
@@ -69,10 +69,11 @@ class ROSControllerNode(object):
 
 
         
-        
+        """
         new_message=String()
         new_message.data="true"
         self.pub_check.publish(new_message)
+        """
 
        
 
@@ -89,6 +90,8 @@ class ROSControllerNode(object):
         postcom = PositionController(self.translation_x_old,self.translation_y_old,self.translation_z_old,self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired, self.z_velocity_old,self.time_interval)
 
         returnvalue= postcom.member()
+        
+        """
         roll = returnvalue[0]
         pitch = returnvalue[1]
         yaw = returnvalue[2]
@@ -97,11 +100,12 @@ class ROSControllerNode(object):
         old_y = returnvalue[5]
         old_z = returnvalue[6]
         old_velocity_z = returnvalue[7]
-        
+        """
+        [roll,pitch,yaw,z_dot,old_x,old_y,old_z,old_velocity_z]=returnvalue
         yaw_dot = 0
 
 
-        self.set_vel(roll, pitch, z_dot, yaw_dot)
+        self.set_vel(roll, pitch, z_dot, yaw)
 
         self.store_old_values(old_x,old_y,old_z,old_velocity_z)
     
@@ -159,13 +163,13 @@ class ROSControllerNode(object):
         msg.linear.x = roll
         msg.linear.y = pitch
         msg.linear.z = z_dot
-        msg.angular.x = yaw_dot
+        msg.angular.z = yaw_dot
         self.pub_vel.publish(msg)
         
     # write code here to define node publishers and subscribers
     # publish to /cmd_vel topic
     # subscribe to /vicon/ARDroneCarre/ARDroneCarre for position and attitude feedback
-    def run_stuff(self,incoming):
+    def run_stuff(self):
         while(True):
             if (((self.translation_x_desired - 0.15) < self.translation_x < (self.translation_x_desired + 0.15)) and 
         ((self.translation_y_desired - 0.15) < self.translation_y < (self.translation_y_desired + 0.15)) and
@@ -175,7 +179,7 @@ class ROSControllerNode(object):
                 self.pub_check.publish("false")
             
             self.process_commands()
-            #time.sleep(0.01)
+            time.sleep(0.01)
             
 
 
@@ -187,6 +191,7 @@ class ROSControllerNode(object):
 if __name__ == '__main__':
     # write code to create ROSControllerNode
     rospy.init_node('ros_controller')
-    ROSControllerNode()
+    obj=ROSControllerNode()
+    obj.run_stuff()
     rospy.spin()
     

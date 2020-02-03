@@ -23,11 +23,11 @@ class PositionController(object):
         self.g = 9.81
         self.angle_yaw = 0
         self.t = position_controller_time_interval
-	print(self.t)
+	#print(self.t)
 
-        self.damping_x = 0.8
+        self.damping_x = 1
         self.natural_frequency_x = 1
-        self.damping_y = 0.8
+        self.damping_y = 1
         self.natural_frequency_y = 1
         self.position_controller_x_translation_old = position_controller_x_translation_old
         self.position_controller_y_translation_old = position_controller_y_translation_old
@@ -59,11 +59,12 @@ class PositionController(object):
 
     def member(self):
 
+        print(self.position_controller_x_translation," ",self.position_controller_y_translation," ",self.position_controller_z_translation," ",self.position_controller_x_translation_old," ",self.position_controller_y_translation_old," ",self.position_controller_z_translation_old," ",self.position_controller_x_translation_desired," ",self.position_controller_y_translation_desired," ",self.position_controller_z_translation_desired)
         x_velocity = (self.position_controller_x_translation-self.position_controller_x_translation_old)/self.t
         y_velocity = (self.position_controller_y_translation-self.position_controller_y_translation_old)/self.t
         z_velocity = (self.position_controller_z_translation-self.position_controller_z_translation_old)/self.t
         
-	print(self.angle_pitch," ",self.angle_roll," ",self.angle_yaw)
+	#print(self.angle_pitch," ",self.angle_roll," ",self.angle_yaw)
 
         # Desired velocity
         velocity_x_desired = (self.position_controller_x_translation_desired-self.position_controller_x_translation)/self.t
@@ -80,27 +81,40 @@ class PositionController(object):
         #z_acceleration_command = 2*C_z*w_nz(velocity_z_desired - z_velocity) + w_nz^2 * (position_controller_z_translation_desired-z)
 
         # Command Angle
-        roll_command_rt = -y_acceleration_command / f
 
-        if roll_command_rt >= 1.:
-            roll_command_rt = 1.
-        if roll_command_rt <= -1.:
-            roll_command_rt = -1.
+        # Roll command
+        roll_command_rt = (-1*y_acceleration_command) / f
+
+        if roll_command_rt >= 1.0:
+            roll_command_rt = 1.0
+        if roll_command_rt <= -1.0:
+            roll_command_rt = -1.0
         roll_c = np.arcsin(roll_command_rt)
 
+
+        # Pitch command
         pitch_command_rt = x_acceleration_command/(f*np.cos(roll_c))
 
-        if pitch_command_rt >= 1.:
-            pitch_command_rt = 1.
-        if pitch_command_rt <= -1.:
-            pitch_command_rt = -1.
+        if pitch_command_rt >= 1.0:
+            pitch_command_rt = 1.0
+        if pitch_command_rt <= -1.0:
+            pitch_command_rt = -1.0
 
         pitch_c = np.arcsin(pitch_command_rt)
 
         # Command Angle - inertial frame
-        roll_cB = roll_c*np.cos(self.angle_yaw) + pitch_c*np.sin(self.angle_yaw)
-        pitch_cB = -roll_c*np.sin(self.angle_yaw) + roll_c*(np.cos(self.angle_yaw))
-        yaw_cB = 0
+        #roll_cB = roll_c*np.cos(self.angle_yaw) + pitch_c*np.sin(self.angle_yaw)
+        #pitch_cB = -roll_c*np.sin(self.angle_yaw) + roll_c*(np.cos(self.angle_yaw))
+        yaw_c = 0
+
+
+        # Correct for non-zero yaws
+        if self.angle_yaw!= 0:
+            roll_cB = (roll_c*np.cos(self.angle_yaw)) + (pitch_c*np.sin(self.angle_yaw))
+            pitch_cB = (-roll_c*np.sin(self.angle_yaw)) + (pitch_c*np.cos(self.angle_yaw))
+            roll_c=roll_cB
+            pitch_c=pitch_cB
+            
 
         #self.position_controller_x_translation_old=self.x
         #self.position_controller_y_translation_old=self.y
@@ -108,9 +122,12 @@ class PositionController(object):
         
         #self.z_velocitposition_controller_y_translation_old=self.z_velocity 
 	#print("Pass Complete")
-        list = [roll_cB, pitch_cB, yaw_cB, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity]
+        """
+        list = [roll_c, pitch_c, yaw_c, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity]
+        """
+        command_data = np.array([roll_c, pitch_c, yaw_c, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity])
 
-        return list
+        return command_data
 
 
 

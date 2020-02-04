@@ -25,12 +25,12 @@ class PositionController(object):
         
         #print(self.t)
 
-        self.damping_x = 0.7
-        self.natural_frequency_x = 1
-        self.damping_y = 0.7
-        self.natural_frequency_y = 1
+        self.damping_x = 0.6
+        self.natural_frequency_x = 0.8
+        self.damping_y = 0.9
+        self.natural_frequency_y = 0.8
         self.damping_z = 0.7
-        self.natural_frequency_z = 1
+        self.natural_frequency_z = 0.95
 
         self.position_controller_x_translation_old = 0
         self.position_controller_y_translation_old = 0
@@ -127,11 +127,11 @@ class PositionController(object):
 
 
         # Correct for non-zero yaws
-        if self.angle_yaw!= 0:
-            roll_cB = (roll_c*np.cos(self.angle_yaw)) + (pitch_c*np.sin(self.angle_yaw))
-            pitch_cB = (-roll_c*np.sin(self.angle_yaw)) + (pitch_c*np.cos(self.angle_yaw))
-            roll_c=roll_cB
-            pitch_c=pitch_cB
+        #if self.angle_yaw!= 0:
+        roll_cB = (roll_c*np.cos(self.angle_yaw)) + (pitch_c*np.sin(self.angle_yaw))
+        pitch_cB = (-roll_c*np.sin(self.angle_yaw)) + (pitch_c*np.cos(self.angle_yaw))
+            #roll_c=roll_cB
+            #pitch_c=pitch_cB
             
 
         self.position_controller_x_translation_old = self.position_controller_x_translation
@@ -139,8 +139,8 @@ class PositionController(object):
         self.position_controller_z_translation_old = self.position_controller_z_translation
 
         self.position_controller_x_translation_desired_old = self.position_controller_x_translation_desired
-        self.position_controller_y_translation_desired_old = self.position_controller_x_translation_desired
-        self.position_controller_z_translation_desired_old = self.position_controller_x_translation_desired
+        self.position_controller_y_translation_desired_old = self.position_controller_y_translation_desired
+        self.position_controller_z_translation_desired_old = self.position_controller_z_translation_desired
         
         self.position_controller_z_velocity_old = z_velocity
         #print("Pass Complete")
@@ -148,7 +148,7 @@ class PositionController(object):
         list = [roll_c, pitch_c, yaw_c, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity]
         """
         #command_data = np.array([roll_c, pitch_c, yaw_c, velocity_z_desired, self.position_controller_x_translation, self.position_controller_y_translation, self.position_controller_z_translation, z_velocity])
-        command_data = np.array([roll_c, pitch_c, yaw_c, z_acceleration_command])
+        command_data = np.array([roll_cB, pitch_cB, yaw_c, z_acceleration_command])
 
         return command_data
 

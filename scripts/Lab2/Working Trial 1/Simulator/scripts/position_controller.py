@@ -188,7 +188,7 @@ class PositionController(object):
         #if self.angle_yaw!= 0:
         roll_cB = (roll_c*np.cos(self.angle_yaw)) + (pitch_c*np.sin(self.angle_yaw))
         pitch_cB = (-roll_c*np.sin(self.angle_yaw)) + (pitch_c*np.cos(self.angle_yaw))
-        yaw_c = self.yaw_rate_const*(std_diff_yaw)
+        yaw_c = self.yaw_rate_const*(std_diff_yaw_desired)
         #roll_c=roll_cB
         #pitch_c=pitch_cB
         """

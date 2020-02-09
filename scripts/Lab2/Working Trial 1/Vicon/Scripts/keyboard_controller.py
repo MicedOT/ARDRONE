@@ -38,7 +38,7 @@ class KeyMapping(object):
     Emergency        = QtCore.Qt.Key.Key_Space
     ThrottleCut      = QtCore.Qt.Key.Key_K # kill switch
 
-    ToggleProcessing      = QtCore.Qt.Key.Key_R
+    ToggleProcessing      = QtCore.Qt.Key.Key_U
 
     #Custom Keys
     Linear           = QtCore.Qt.Key.Key_N

@@ -43,7 +43,7 @@ class KeyMapping(object):
     #Custom Keys
     Linear           = QtCore.Qt.Key.Key_N
     Circle           = QtCore.Qt.Key.Key_M
-    Spiral           = QtCore.Qt.Key.Key_R
+    Spiral           = QtCore.Qt.Key.Key_L
 
 
 # Our controller definition, note that we extend the DroneVideoDisplay class

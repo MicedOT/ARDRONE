@@ -1,0 +1,8 @@
+rosbag record -a
+rosbag record -O desiredandcurrent.bag /desired_positions /vicon/ARDroneCarre/ARDroneCarre
+
+rostopic echo -c /desired_positions
+rostopic echo -c /vicon/ARDroneCarre/ARDroneCarre
+rostopic echo -c /check_type
+
+rosbag filter <original bag name> <newbag name> 'topic == "<topic name>"' ##ardrone/image_raW

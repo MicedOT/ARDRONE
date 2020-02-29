@@ -19,11 +19,10 @@ from ardrone_autonomy.msg import Navdata # for receiving navdata feedback
 # An enumeration of Drone Statuses
 from drone_status import DroneStatus
 
-#Import Necessary functions
-from std_msgs.msg import String
 
 # Some Constants
 COMMAND_PERIOD = 100 #ms
+
 
 class BasicDroneController(object):
     def __init__(self):
@@ -70,9 +69,7 @@ class BasicDroneController(object):
     def SendLand(self):
         # Send a landing message to the ardrone driver
         # Note we send this in all states, landing can do no harm
-        self.pubLand.publish(Empty())
-
-    def SendLinear(self):
+        self.pubLand.publish(Empty())def SendLinear(self):
         msg = String()
         msg.data="linear"
         self.pubChoice.publish(msg)
@@ -106,6 +103,7 @@ class BasicDroneController(object):
             msg.data="stop"
         self.togglestartstop=self.togglestartstop*-1
         self.pubToggle.publish(msg)
+
 
     def SendCommand(self,event):
         # The previously set command is then sent out periodically if the drone is flying

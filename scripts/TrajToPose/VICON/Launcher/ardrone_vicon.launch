@@ -20,9 +20,17 @@
   <!-- Launches the VICON motion capture system -->  
     <node pkg="vicon_bridge" type="vicon_bridge" name="vicon" output="screen">
 		<param name="stream_mode" value="ClientPull" type="str" />
-		<param name="datastream_hostport" value="192.168.2.120:801" type="str" />
+		<param name="datastream_hostport" value="192.168.2.102:801" type="str" />
 		<param name="tf_ref_frame_id" value="/world" type="str" />
-    </node>
+	    <!-- Zero pose for ARDroneCarre. Calibration data, do not modify -->
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/position/x"    value="-0.0579701979313" type="double" />
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/position/y"    value="-0.0276826347724" type="double" />
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/position/z"    value="0.110588623704" type="double" />
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/orientation/x" value="0.145173303883" type="double" /> 
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/orientation/y" value="-0.671840835245" type="double" /> 
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/orientation/z" value="0.226526746879" type="double" />
+        <param name="ARDroneCarre/ARDroneCarre/zero_pose/orientation/w" value="0.690101613449" type="double" />
+	</node>
 	
   <!-- FROM LAB 1: Create ROS node that controls the AR Drone (ros_interface.py) -->
 	<node name="ros_controller" pkg="aer1217_ardrone_vicon" type="ros_interface.py" output="screen" required="True"/>

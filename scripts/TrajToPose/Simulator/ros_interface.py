@@ -116,9 +116,15 @@ class ROSControllerNode(object):
         
         #Send Required Values to Position Controller
         self.postcom.update_pos_controller_values(self.translation_x, self.translation_y, self.translation_z, self.rotation, self.translation_x_desired, self.translation_y_desired, self.translation_z_desired, self.rotation_desired, self.time_interval)
-
         #Recieve Calculation of Commands
         returnvalue= self.postcom.calculate_commands()
+        
+        """
+        roll = returnvalue[0]
+        pitch = returnvalue[1]
+        yaw = returnvalue[2]
+        z_dot = returnvalue[3]
+        """
         [roll,pitch,yaw,z_dot]=returnvalue
 
         #Publish Errors
@@ -139,6 +145,7 @@ class ROSControllerNode(object):
         self.rotation_z_desired = desired_position_data.pose.orientation.z       
         self.rotation_w_desired = desired_position_data.pose.orientation.w
 
+ 
     # Obtain value from VICON
     def update_vicon(self,vicon_data_msg):
         #Update Current Position

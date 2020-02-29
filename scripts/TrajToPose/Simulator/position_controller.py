@@ -15,6 +15,7 @@ from geometry_msgs.msg import TransformStamped, Twist
 
 class PositionController(object):
 
+    
     #Initialize Position Controller Variables
     def __init__(self):
         
@@ -23,12 +24,12 @@ class PositionController(object):
         
         #print(self.t)
         #Set Damping Ratios and Natural Frequencies
-        self.damping_x = 0.7
-        self.natural_frequency_x = 0.8
-        self.damping_y = 0.7
-        self.natural_frequency_y = 0.8
-        self.damping_z = 0.95
-        self.natural_frequency_z = 0.9
+        self.damping_x = 0.55
+        self.natural_frequency_x = 0.95
+        self.damping_y = 0.55
+        self.natural_frequency_y = 0.95
+        self.damping_z = 0.85
+        self.natural_frequency_z = 1
 
         self.damping_yaw=2
         self.natural_frequency_yaw = 3
@@ -131,6 +132,9 @@ class PositionController(object):
         if(np.absolute(std_diff_yaw_desired_now)>np.pi):
             std_diff_yaw_desired_now=-1.0*np.sign(std_diff_yaw_desired_now)*((2*np.pi)-np.absolute(std_diff_yaw_desired_now))
 
+        
+
+
         #Calculate Mass Normalized Thrust
         z_acceleration =  (z_velocity-self.position_controller_z_velocity_old)/self.t
         #z_acceleration=0
@@ -163,6 +167,22 @@ class PositionController(object):
 
         pitch_c = np.arcsin(pitch_command_rt)
 
+        
+        """
+        for i in range(0, 1):
+            #if ((355*(np.pi/180)) <= self.angle_yaw_desired <= (5*(np.pi/180))):
+            #    break
+            elif (self.angle_yaw < 0) and ((0*(np.pi/180)) <= self.angle_yaw_desired < (180*(np.pi/180))):
+                #self.angle_yaw = self.angle_yaw + (2*np.pi)
+                break
+            elif (self.angle_yaw > 0) and ((0*(np.pi/180)) <= self.angle_yaw_desired < (180*(np.pi/180))):
+                #self.angle_yaw = self.angle_yaw + (2*np.pi)
+            else:
+                pass
+
+        """
+        
+
         # Command Angle - inertial frame
         # Correct for non-zero yaws
         #if self.angle_yaw!= 0:
@@ -171,6 +191,13 @@ class PositionController(object):
         yaw_c = self.yaw_rate_const*(std_diff_yaw_desired_now)
         #roll_c=roll_cB
         #pitch_c=pitch_cB
+        """
+        if (self.angle_yaw):
+            break
+        elif (self.angle_yaw < 0) and ((0*(np.pi/180)) <= self.angle_yaw_desired < (180*(np.pi/180))):
+            #self.angle_yaw = self.angle_yaw + (2*np.pi)
+            break
+        """
             
         #Save Reference Pose, Old Pose and Velocity
         self.position_controller_x_translation_old = self.position_controller_x_translation
@@ -186,7 +213,10 @@ class PositionController(object):
         self.angle_yaw_desired_old=self.angle_yaw_desired
         
         self.position_controller_z_velocity_old = z_velocity
-
+        #print("Pass Complete")
+        """
+        list = [roll_c, pitch_c, yaw_c, z_acceleration_command]
+        """
         #Return Command Data
         command_data = np.array([roll_cB, pitch_cB, yaw_c, z_acceleration_command])
 

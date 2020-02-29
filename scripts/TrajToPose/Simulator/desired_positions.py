@@ -22,7 +22,10 @@ class ROSDesiredPositionGenerator(object):
         self.number_of_points=2000
         self.pub_pos_des = rospy.Publisher('/desired_positions', PoseStamped, queue_size = self.number_of_points)
         self.check = rospy.Subscriber('/check_type', String, self.choose_type)
- 
+        #self.check = rospy.Subscriber('/check_mate', String, self.send)
+        
+
+
         self.X = np.linspace(0, 0, num=self.number_of_points)
         self.Y = np.linspace(0, 0, num=self.number_of_points)
         self.Z = np.linspace(0, 0, num=self.number_of_points)
@@ -51,7 +54,14 @@ class ROSDesiredPositionGenerator(object):
         X2 = np.linspace(1, -1, num=self.number_of_points/2)
         Y2 = np.linspace(0, 2, num=self.number_of_points/2)
         Z2 = np.linspace(2, 1, num=self.number_of_points/2)
-
+        """
+        X1 = np.linspace(0, 0, num=self.number_of_points/2)
+        Y1 = np.linspace(0, 0, num=self.number_of_points/2)
+        Z1 = np.linspace(1, 6, num=self.number_of_points/2)
+        X2 = np.linspace(0, 0, num=self.number_of_points/2)
+        Y2 = np.linspace(0, 0, num=self.number_of_points/2)
+        Z2 = np.linspace(6, 1, num=self.number_of_points/2)
+        """
         self.X=np.concatenate([X1,X2])
         self.Y=np.concatenate([Y1,Y2])
         self.Z=np.concatenate([Z1,Z2])
@@ -59,6 +69,7 @@ class ROSDesiredPositionGenerator(object):
         self.X_euler = np.linspace(0, 0 , self.number_of_points)
         self.Y_euler = np.linspace(0, 0 , self.number_of_points)
         self.Z_euler = np.linspace(0 ,0 , self.number_of_points)
+
 
     #Create Spiral Trajectory 
     def spiral_trajectory(self):
@@ -86,6 +97,8 @@ class ROSDesiredPositionGenerator(object):
         start_ang=-np.pi
         end_ang=np.pi
         self.Z_euler = np.linspace(start_ang, end_ang, self.number_of_points)
+
+
         
     #Choose Path Type
     def choose_type(self,message):
@@ -95,6 +108,8 @@ class ROSDesiredPositionGenerator(object):
             self.spiral_trajectory()
         if(message.data=="circle"):
             self.circle_trajectory()
+
+        
 
     #Publish Desired Trajectory
     def send(self,message):
@@ -112,8 +127,10 @@ class ROSDesiredPositionGenerator(object):
         msg.pose.orientation.z = Z_quaternion
         msg.pose.orientation.w = W_quaternion
         self.desired_position_counter = (self.desired_position_counter + 1)%self.number_of_points
+
         
         self.pub_pos_des.publish(msg) 
+
 
     pass
 

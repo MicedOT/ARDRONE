@@ -130,6 +130,7 @@ class KeyboardController(DroneVideoDisplay):
 
     def keyReleaseEvent(self,event):
         key = event.key()
+
         # If we have constructed the drone controller and the key is not generated from an auto-repeating key
         if controller is not None and not event.isAutoRepeat():
             # Note that we don't handle the release of emergency/takeoff/landing keys here, there is no need.
@@ -156,6 +157,8 @@ class KeyboardController(DroneVideoDisplay):
 
             # finally we set the command to be sent. The controller handles sending this at regular intervals
             controller.SetCommand(self.roll, self.pitch, self.yaw_velocity, self.z_velocity)
+
+
 
 # Setup the application
 if __name__=='__main__':

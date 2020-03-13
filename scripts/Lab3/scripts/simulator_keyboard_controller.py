@@ -11,8 +11,9 @@ import rospy
 
 # Load the DroneController class, which handles interactions with the drone, and the DroneVideoDisplay class, which handles video display
 from drone_controller import BasicDroneController
-from drone_video_display import DroneVideoDisplay
+from simulator_video_display import DroneVideoDisplay
 from ardrone_autonomy.srv import *
+from aer1217_ardrone_simulator.srv import *
 import numpy as np
 
 # Finally the GUI libraries
@@ -43,7 +44,7 @@ class KeyMapping(object):
     #Custom Keys
     Linear           = QtCore.Qt.Key.Key_N
     Circle           = QtCore.Qt.Key.Key_M
-    Spiral           = QtCore.Qt.Key.Key_L
+    Spiral           = QtCore.Qt.Key.Key_R
 
 
 # Our controller definition, note that we extend the DroneVideoDisplay class
@@ -72,7 +73,7 @@ class KeyboardController(DroneVideoDisplay):
             elif key == KeyMapping.Takeoff:
                 controller.SendTakeoff()        
             elif key == KeyMapping.Land:
-                controller.SendLand()    
+                controller.SendLand()
             elif key == KeyMapping.Linear:
                 controller.SendLinear()
             elif key == KeyMapping.Circle:
@@ -82,17 +83,13 @@ class KeyboardController(DroneVideoDisplay):
             elif key == KeyMapping.ToggleProcessing:
                 controller.StartStop()    
             elif key == KeyMapping.CamChange:
-                rospy.wait_for_service('ardrone/setcamchannel')
+                rospy.wait_for_service('ardrone/togglecam')
                 try:
-                    switchcam = rospy.ServiceProxy('ardrone/setcamchannel', CamSelect)
-                    switchcam(np.uint8(self.camchannel))
+                    switchcam = rospy.ServiceProxy('ardrone/togglecam', ToggleCam)
+                    switchcam()
                 except rospy.ServiceException, e:
                     print "Service call failed: %s" % e
-                finally:
-                    if self.camchannel == 0:
-                        self.camchannel = 1
-                    else:
-                        self.camchannel = 0
+                    
             elif key == KeyMapping.ProcessImg:
                 if self.processImagesBool == False:
                     self.processImagesBool = True
@@ -124,12 +121,17 @@ class KeyboardController(DroneVideoDisplay):
                 elif key == KeyMapping.DecreaseAltitude:
                     self.z_velocity += -1
 
+                
+
+                
+
             # finally we set the command to be sent. The controller handles sending this at regular intervals
             controller.SetCommand(self.roll, self.pitch, self.yaw_velocity, self.z_velocity)
 
 
     def keyReleaseEvent(self,event):
         key = event.key()
+
         # If we have constructed the drone controller and the key is not generated from an auto-repeating key
         if controller is not None and not event.isAutoRepeat():
             # Note that we don't handle the release of emergency/takeoff/landing keys here, there is no need.
@@ -156,6 +158,8 @@ class KeyboardController(DroneVideoDisplay):
 
             # finally we set the command to be sent. The controller handles sending this at regular intervals
             controller.SetCommand(self.roll, self.pitch, self.yaw_velocity, self.z_velocity)
+
+
 
 # Setup the application
 if __name__=='__main__':

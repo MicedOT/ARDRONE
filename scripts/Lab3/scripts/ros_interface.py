@@ -36,6 +36,8 @@ class ROSControllerNode(object):
         self.desired_position_data = rospy.Subscriber('/desired_positions', PoseStamped, self.update_desired_position)
         self.start_stop_command = rospy.Subscriber('/start_stop_toggle', String,self.update_state)
 
+        self.request_pic = rospy.Publisher('/take_pic', String, queue_size = 10)
+
         self.pub_errors = rospy.Publisher('/errors', PoseStamped, queue_size = 100)
         #self.pub_check = rospy.Publisher('/check_mate', String, queue_size = 100)
         
@@ -75,9 +77,12 @@ class ROSControllerNode(object):
         # Run the publish commands at 100 Hz
         self.onboard_loop_frequency = 100.
         
+        self.pic_taking_speed=1.
         
         # Run this ROS node at the onboard loop frequency
-        self.nutjobcase = rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_process)        
+        self.nutjobcase = rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_process) 
+
+        self.wedfsj = rospy.Timer(rospy.Duration(1. / self.pic_taking_speed), self.pic_initiator)      
         
         self.postcom = PositionController()
         
@@ -170,6 +175,10 @@ class ROSControllerNode(object):
     def run_process(self,random):
         if(self.run_state):
             self.process_commands()
+
+    def pic_initiator(self,random):
+        sfsdfjhds="hello"
+        self.request_pic.publish(sfsdfjhds)
 
 
 if __name__ == '__main__':

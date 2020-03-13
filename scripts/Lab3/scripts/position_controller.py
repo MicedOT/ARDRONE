@@ -14,21 +14,29 @@ from geometry_msgs.msg import TransformStamped, Twist
 
 
 class PositionController(object):
-
+    Kp = 0.3
+    Ki = 0.4
+    Kd = 0.2
+    
     #Initialize Position Controller Variables
     def __init__(self):
         
         self.g = 9.81
         self.angle_yaw = 0
-        
+
+        self.Kp = 0.3
+        self.Ki = 0.4
+        self.Kd = 0.2        
+
+
         #print(self.t)
         #Set Damping Ratios and Natural Frequencies
-        self.damping_x = 0.7
-        self.natural_frequency_x = 0.8
-        self.damping_y = 0.7
-        self.natural_frequency_y = 0.8
-        self.damping_z = 0.95
-        self.natural_frequency_z = 0.9
+        self.damping_x = 0.55
+        self.natural_frequency_x = 0.95
+        self.damping_y = 0.55
+        self.natural_frequency_y = 0.95
+        self.damping_z = 0.85
+        self.natural_frequency_z = 1
 
         self.damping_yaw=2
         self.natural_frequency_yaw = 3
@@ -48,6 +56,10 @@ class PositionController(object):
         self.angle_yaw_desired_old = 0
 
         self.position_controller_z_velocity_old = 0
+
+        self.error_z_old = 0
+        self.error_z = 0
+        self.com_error_z = 0
 
     #Update Values for Calculation Variables
     def update_pos_controller_values(self, position_controller_x_translation, position_controller_y_translation, position_controller_z_translation, rotat, position_controller_x_translation_desired, position_controller_y_translation_desired, position_controller_z_translation_desired, position_controller_rotation_desired,position_controller_time_interval):
@@ -77,8 +89,11 @@ class PositionController(object):
         self.angle_pitch_desired = euler_angle[1]
         self.angle_yaw_desired = euler_angle[2]
     
-             
-        
+        #Calcualte errors
+        #self.error_roll = self.angle_roll - self.angle_roll_desired
+        #self.error_pitch = self.angle_pitch - self.angle_pitch_desired
+        #self.error_yaw = self.angle_yaw - self.angle_yaw_desired
+
     #Calculate Commands for On Board Controller
     def calculate_commands(self):
 
@@ -99,7 +114,11 @@ class PositionController(object):
         """
         velocity_x_desired = (self.position_controller_x_translation_desired-self.position_controller_x_translation_desired_old)/self.t
         velocity_y_desired = (self.position_controller_y_translation_desired-self.position_controller_y_translation_desired_old)/self.t    
-        velocity_z_desired = (self.position_controller_z_translation_desired-self.position_controller_z_translation_desired_old)/self.t
+        velocity_z_desired = (self.position_controller_z_translation_desired-self.position_controller_z_translation)/self.t
+
+        self.error_z = (self.position_controller_z_translation_desired-self.position_controller_z_translation)
+
+        self.com_error_z = self.com_error_z + self.error_z
         
         #Yaw Correction (Based on the Quadrant for Direction of spin)
         
@@ -131,6 +150,9 @@ class PositionController(object):
         if(np.absolute(std_diff_yaw_desired_now)>np.pi):
             std_diff_yaw_desired_now=-1.0*np.sign(std_diff_yaw_desired_now)*((2*np.pi)-np.absolute(std_diff_yaw_desired_now))
 
+        
+
+
         #Calculate Mass Normalized Thrust
         z_acceleration =  (z_velocity-self.position_controller_z_velocity_old)/self.t
         #z_acceleration=0
@@ -139,7 +161,8 @@ class PositionController(object):
         # Command Acceleration
         x_acceleration_command = 2*self.damping_x*self.natural_frequency_x*(velocity_x_desired - x_velocity) + np.power(self.natural_frequency_x,2) * (self.position_controller_x_translation_desired-self.position_controller_x_translation)
         y_acceleration_command = 2*self.damping_y*self.natural_frequency_y*(velocity_y_desired - y_velocity) + np.power(self.natural_frequency_y,2) * (self.position_controller_y_translation_desired-self.position_controller_y_translation)
-        z_acceleration_command = 2*self.damping_z*self.natural_frequency_z*(velocity_z_desired - z_velocity) +np.power(self.natural_frequency_z,2) * (self.position_controller_z_translation_desired-self.position_controller_z_translation)
+        #z_acceleration_command = 2*self.damping_z*self.natural_frequency_z*(velocity_z_desired - z_velocity) +np.power(self.natural_frequency_z,2) * (self.position_controller_z_translation_desired-self.position_controller_z_translation)
+        z_acceleration_command = (velocity_z_desired - z_velocity)*self.Kp + self.com_error_z*self.Ki + (self.error_z - self.error_z_old)*self.Kd
 
         yaw_rate_command=2*self.damping_yaw*self.natural_frequency_yaw*(velocity_yaw_desired - yaw_velocity) + np.power(self.natural_frequency_yaw,2) * (std_diff_yaw)
         
@@ -163,6 +186,22 @@ class PositionController(object):
 
         pitch_c = np.arcsin(pitch_command_rt)
 
+        
+        """
+        for i in range(0, 1):
+            #if ((355*(np.pi/180)) <= self.angle_yaw_desired <= (5*(np.pi/180))):
+            #    break
+            elif (self.angle_yaw < 0) and ((0*(np.pi/180)) <= self.angle_yaw_desired < (180*(np.pi/180))):
+                #self.angle_yaw = self.angle_yaw + (2*np.pi)
+                break
+            elif (self.angle_yaw > 0) and ((0*(np.pi/180)) <= self.angle_yaw_desired < (180*(np.pi/180))):
+                #self.angle_yaw = self.angle_yaw + (2*np.pi)
+            else:
+                pass
+
+        """
+        
+
         # Command Angle - inertial frame
         # Correct for non-zero yaws
         #if self.angle_yaw!= 0:
@@ -171,6 +210,7 @@ class PositionController(object):
         yaw_c = self.yaw_rate_const*(std_diff_yaw_desired_now)
         #roll_c=roll_cB
         #pitch_c=pitch_cB
+
             
         #Save Reference Pose, Old Pose and Velocity
         self.position_controller_x_translation_old = self.position_controller_x_translation
@@ -187,6 +227,11 @@ class PositionController(object):
         
         self.position_controller_z_velocity_old = z_velocity
 
+        self.error_z_old = self.error_z
+        #print("Pass Complete")
+        """
+        list = [roll_c, pitch_c, yaw_c, z_acceleration_command]
+        """
         #Return Command Data
         command_data = np.array([roll_cB, pitch_cB, yaw_c, z_acceleration_command])
 

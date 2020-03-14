@@ -46,7 +46,7 @@ class ROSDesiredPositionGenerator(object):
 
 
     #Create  Trajectory
-    """    
+      
     def linear_trajectory(self):
         
         X1 = np.linspace(-1, 1, num=self.number_of_points/2)
@@ -55,14 +55,14 @@ class ROSDesiredPositionGenerator(object):
         X2 = np.linspace(1, -1, num=self.number_of_points/2)
         Y2 = np.linspace(0, 2, num=self.number_of_points/2)
         Z2 = np.linspace(2, 1, num=self.number_of_points/2)
-        
+        """   
         X1 = np.linspace(0, 0, num=self.number_of_points/2)
         Y1 = np.linspace(0, 0, num=self.number_of_points/2)
         Z1 = np.linspace(1, 6, num=self.number_of_points/2)
         X2 = np.linspace(0, 0, num=self.number_of_points/2)
         Y2 = np.linspace(0, 0, num=self.number_of_points/2)
         Z2 = np.linspace(6, 1, num=self.number_of_points/2)
-        
+        """    
         self.X=np.concatenate([X1,X2])
         self.Y=np.concatenate([Y1,Y2])
         self.Z=np.concatenate([Z1,Z2])
@@ -70,47 +70,33 @@ class ROSDesiredPositionGenerator(object):
         self.X_euler = np.linspace(0, 0 , self.number_of_points)
         self.Y_euler = np.linspace(0, 0 , self.number_of_points)
         self.Z_euler = np.linspace(0 ,0 , self.number_of_points)
-     """
     
-    def linear_trajectory(self):
+    
+    def snake_trajectory(self):
         point_short=int(self.number_of_points/24)
         point_long=int(self.number_of_points/6)
 
         y1 = np.linspace(-2,2,num=point_long)
         y2 = np.ones(point_short)*2
-        self.Y=np.concatenate([y1,y2])
         y3 = np.linspace(2,-2,num=point_long)
-        self.Y=np.concatenate([self.Y,y3])
         y4 = np.ones(point_short)*-2
-        self.Y=np.concatenate([self.Y,y4])
         y5 = np.linspace(-2,2,num=point_long)
-        self.Y=np.concatenate([self.Y,y5])
         y6 = np.ones(point_short)*2
-        self.Y=np.concatenate([self.Y,y6])
         y7 = np.linspace(2,-2,num=point_long)
-        self.Y=np.concatenate([self.Y,y7])
         y8 = np.ones(point_short)*-2
-        self.Y=np.concatenate([self.Y,y8])
         y9 = np.linspace(-2,2,num=point_long)
-        self.Y=np.concatenate([self.Y,y9])
+        self.Y=np.concatenate([y1,y2,y3,y4,y5,y6,y7,y8,y9])
 
         x1 = np.ones(point_long)*-2
         x2 = np.linspace(-2,-1,num=point_short)
-        self.X=np.concatenate([x1,x2])
         x3 = np.ones(point_long)*-1
-        self.X=np.concatenate([self.X,x3])
         x4 = np.linspace(-1,0,num=point_short)
-        self.X=np.concatenate([self.X,x4])
         x5 = np.ones(point_long)*0
-        self.X=np.concatenate([self.X,x5])
         x6 = np.linspace(0,1,num=point_short)
-        self.X=np.concatenate([self.X,x6])
         x7 = np.ones(point_long)*1
-        self.X=np.concatenate([self.X,x7])
         x8 = np.linspace(1,2,num=point_short)
-        self.X=np.concatenate([self.X,x8])
         x9 = np.ones(point_long)*2
-        self.X=np.concatenate([self.X,x9])
+        self.X=np.concatenate([x1,x2,x3,x4,x5,x6,x7,x8,x9])
  
         self.Z = np.ones(self.number_of_points)*1.3
 
@@ -118,6 +104,15 @@ class ROSDesiredPositionGenerator(object):
         self.Y_euler = np.linspace(0, 0 , self.number_of_points)
         self.Z_euler = np.linspace(0 ,0 , self.number_of_points)
 
+    #Reach Position to start snake path
+    def ready(self):
+        self.X = np.ones(self.number_of_points)*-2
+        self.Y = np.ones(self.number_of_points)*-2
+        self.Z = np.ones(self.number_of_points)*1.3
+
+        self.X_euler = np.linspace(0, 0 , self.number_of_points)
+        self.Y_euler = np.linspace(0, 0 , self.number_of_points)
+        self.Z_euler = np.linspace(0 ,0 , self.number_of_points)        
 
     #Create Spiral Trajectory 
     def spiral_trajectory(self):
@@ -156,6 +151,10 @@ class ROSDesiredPositionGenerator(object):
             self.spiral_trajectory()
         if(message.data=="circle"):
             self.circle_trajectory()
+        if(message.data=="snake"):
+            self.snake_trajectory()
+        if(message.data=="ready"):
+            self.ready()
 
         
 

@@ -45,6 +45,8 @@ class KeyMapping(object):
     Linear           = QtCore.Qt.Key.Key_N
     Circle           = QtCore.Qt.Key.Key_M
     Spiral           = QtCore.Qt.Key.Key_R
+    Snake            = QtCore.Qt.Key.Key_L
+    Ready            = QtCore.Qt.Key.Key_O
 
 
 # Our controller definition, note that we extend the DroneVideoDisplay class
@@ -80,6 +82,10 @@ class KeyboardController(DroneVideoDisplay):
                 controller.SendCircle()
             elif key == KeyMapping.Spiral:
                 controller.SendSpiral()
+            elif key == KeyMapping.Snake:
+                controller.SendSnake()
+            elif key == KeyMapping.Ready:
+                controller.SendReady()
             elif key == KeyMapping.ToggleProcessing:
                 controller.StartStop()    
             elif key == KeyMapping.CamChange:

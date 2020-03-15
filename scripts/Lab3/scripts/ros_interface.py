@@ -2,13 +2,10 @@
 
 """
 ROS Node for controlling the ARDrone 2.0 using the ardrone_autonomy package.
-
 This ROS node subscribes to the following topics:
 /vicon/ARDroneCarre/ARDroneCarre
-
 This ROS node publishes to the following topics:
 /cmd_vel_RHC
-
 """
 
 from __future__ import division, print_function, absolute_import

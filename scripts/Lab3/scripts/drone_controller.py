@@ -87,6 +87,16 @@ class BasicDroneController(object):
         msg.data="spiral"
         self.pubChoice.publish(msg)
 
+    def SendSnake(self):
+        msg = String()
+        msg.data="snake"
+        self.pubChoice.publish(msg)
+
+    def SendReady(self):
+        msg = String()
+        msg.data="ready"
+        self.pubChoice.publish(msg)
+
     def SendEmergency(self):
         # Send an emergency (or reset) message to the ardrone driver
         self.pubReset.publish(Empty())

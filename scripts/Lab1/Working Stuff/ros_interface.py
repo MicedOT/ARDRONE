@@ -201,7 +201,7 @@ class ROSControllerNode(object):
     # subscribe to /vicon/ARDroneCarre/ARDroneCarre for position and attitude feedback
     def run_stuff(self):
         
-        margin = 0.05
+        margin = 2.25
         while(True):
             if (((self.translation_x_desired - margin) < self.translation_x < (self.translation_x_desired + margin)) and((self.translation_y_desired - margin) < self.translation_y < (self.translation_y_desired + margin)) and((self.translation_z_desired - margin) < self.translation_z < (self.translation_z_desired + margin))):
                 #self.pub_check.publish("true")

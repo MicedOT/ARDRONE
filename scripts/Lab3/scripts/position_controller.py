@@ -23,22 +23,27 @@ class PositionController(object):
         
         self.g = 9.81
         self.angle_yaw = 0
-
+	
+        # Z-direction
         self.Kp = 0.3
         self.Ki = 0.4
-        self.Kd = 0.2        
+        self.Kd = 0.2
 
+        # XY-direction
+        self.Kp_xy = 0.75
+        self.Kv_xy = 0.8
+        
+        #moment of inertia(kg m^2)
+        I = 0.099
 
-        #print(self.t)
-        #Set Damping Ratios and Natural Frequencies
-        self.damping_x = 0.55
-        self.natural_frequency_x = 0.95
-        self.damping_y = 0.55
-        self.natural_frequency_y = 0.95
+        #Damping Ratios and Natural Frequencies
+        self.damping = self.Kv_xy/(self.Kp_xy*I)**(0.5)
+        self.natural_frequency = self.Kp_xy**(0.5)
+        
         self.damping_z = 0.85
         self.natural_frequency_z = 1
 
-        self.damping_yaw=2
+        self.dampingyaw=2
         self.natural_frequency_yaw = 3
 
         self.yaw_rate_const=200
@@ -107,11 +112,6 @@ class PositionController(object):
 
         
         # Desired velocity
-        """
-        velocity_x_desired = (self.position_controller_x_translation_desired-self.position_controller_x_translation)/self.t
-        velocity_y_desired = (self.position_controller_y_translation_desired-self.position_controller_y_translation)/self.t    
-        velocity_z_desired = (self.position_controller_z_translation_desired-self.position_controller_z_translation)/self.t
-        """
         velocity_x_desired = (self.position_controller_x_translation_desired-self.position_controller_x_translation_desired_old)/self.t
         velocity_y_desired = (self.position_controller_y_translation_desired-self.position_controller_y_translation_desired_old)/self.t    
         velocity_z_desired = (self.position_controller_z_translation_desired-self.position_controller_z_translation)/self.t
@@ -152,19 +152,17 @@ class PositionController(object):
 
         
 
-
         #Calculate Mass Normalized Thrust
         z_acceleration =  (z_velocity-self.position_controller_z_velocity_old)/self.t
         #z_acceleration=0
         f = ((z_acceleration)+self.g) / (np.cos(self.angle_pitch)*np.cos(self.angle_roll))
 
         # Command Acceleration
-        x_acceleration_command = 2*self.damping_x*self.natural_frequency_x*(velocity_x_desired - x_velocity) + np.power(self.natural_frequency_x,2) * (self.position_controller_x_translation_desired-self.position_controller_x_translation)
-        y_acceleration_command = 2*self.damping_y*self.natural_frequency_y*(velocity_y_desired - y_velocity) + np.power(self.natural_frequency_y,2) * (self.position_controller_y_translation_desired-self.position_controller_y_translation)
-        #z_acceleration_command = 2*self.damping_z*self.natural_frequency_z*(velocity_z_desired - z_velocity) +np.power(self.natural_frequency_z,2) * (self.position_controller_z_translation_desired-self.position_controller_z_translation)
+        x_acceleration_command = 2*self.damping*self.natural_frequency*(velocity_x_desired - x_velocity) + np.power(self.natural_frequency,2) * (self.position_controller_x_translation_desired-self.position_controller_x_translation)
+        y_acceleration_command = 2*self.damping*self.natural_frequency*(velocity_y_desired - y_velocity) + np.power(self.natural_frequency,2) * (self.position_controller_y_translation_desired-self.position_controller_y_translation)
         z_acceleration_command = (velocity_z_desired - z_velocity)*self.Kp + self.com_error_z*self.Ki + (self.error_z - self.error_z_old)*self.Kd
 
-        yaw_rate_command=2*self.damping_yaw*self.natural_frequency_yaw*(velocity_yaw_desired - yaw_velocity) + np.power(self.natural_frequency_yaw,2) * (std_diff_yaw)
+        yaw_rate_command=2*self.dampingyaw*self.natural_frequency_yaw*(velocity_yaw_desired - yaw_velocity) + np.power(self.natural_frequency_yaw,2) * (std_diff_yaw)
         
         # Command Angle
         # Roll command

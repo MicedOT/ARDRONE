@@ -2,13 +2,10 @@
 
 """
 ROS Node for controlling the ARDrone 2.0 using the ardrone_autonomy package.
-
 This ROS node subscribes to the following topics:
 /vicon/ARDroneCarre/ARDroneCarre
-
 This ROS node publishes to the following topics:
 /cmd_vel_RHC
-
 """
 
 from __future__ import division, print_function, absolute_import
@@ -67,6 +64,13 @@ class ROSControllerNode(object):
         self.rotation_z_desired=0.0
         self.rotation_w_desired=1.0
 
+        self.pic_counter=0
+        self.pic_x = [0,-2,-2,-2,-2,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+        self.pic_y =[ 0,-2.0000,-1.5000,-1.0000,-0.5000,0,0.5000,1.0000,1.5000,2.0000,2.0000,1.5000,1.0000,0.5000, 0,-0.5000,-1.0000,-1.5000,-2.0000,-2.0000,-1.5000,-1.0000,-0.5000,0,0.5000,1.0000,1.5000,2.0000,2.0000,1.5000,1.0000,0.5000, 0,-0.5000,-1.0000,-1.5000,-2.0000,-2.0000,-1.5000,-1.0000,-0.5000,0,0.5000,1.0000,1.5000,2.0000]
+        self.pic_z=[1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3]
+
+
         self.time_interval=0
         self.current_time=rospy.get_time()
         self.old_time=rospy.get_time()
@@ -77,7 +81,7 @@ class ROSControllerNode(object):
         # Run the publish commands at 100 Hz
         self.onboard_loop_frequency = 100.
         
-        self.pic_taking_speed=1.
+        self.pic_taking_speed=10.
         
         # Run this ROS node at the onboard loop frequency
         self.nutjobcase = rospy.Timer(rospy.Duration(1. / self.onboard_loop_frequency), self.run_process) 
@@ -177,8 +181,17 @@ class ROSControllerNode(object):
             self.process_commands()
 
     def pic_initiator(self,random):
-        sfsdfjhds="hello"
-        self.request_pic.publish(sfsdfjhds)
+        margin = 0.25
+        picture_point_x=self.pic_x[self.pic_counter]
+        picture_point_y=self.pic_y[self.pic_counter]
+        picture_point_z=self.pic_z[self.pic_counter]
+
+        if (((picture_point_x - margin) < self.translation_x < (picture_point_x + margin)) and((picture_point_y - margin) < self.translation_y < (picture_point_y + margin)) and((picture_point_z - margin) < self.translation_z < (picture_point_z + margin))):
+            capture_message="capture"
+            self.pic_counter=self.pic_counter+1
+            self.request_pic.publish(capture_message)
+           
+        
 
 
 if __name__ == '__main__':

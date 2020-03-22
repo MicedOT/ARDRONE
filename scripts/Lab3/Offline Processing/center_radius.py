@@ -9,7 +9,32 @@ import time
 import os
 import glob
 
-def find_center(filename):
+def correct_distortion(filename):
+    # K(given)
+    camera_matrix = np.matrix([[698.86,   0.00, 306.91], 
+                    [  0.00, 699.13, 150.34],
+                    [  0.00,   0.00,   1.00]])
+
+    # d(given)
+    dist_coeffs =   np.matrix([[ 0.191887,
+                  -0.563680,
+                  -0.003676,
+                  -0.002037,
+		           0.000000 ]])
+    print(filename)
+    img = cv2.imread(filename)
+    h,  w = img.shape[:2]
+    
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(camera_matrix, dist_coeffs, (w,h), 1, (w,h))
+
+    # undistort
+    dst = cv2.undistort(img, camera_matrix, dist_coeffs, None, newcameramtx)
+    # crop the image
+    x, y, w, h = roi
+    dst = dst[y:y+h, x:x+w]
+    return dst
+
+def find_center(frame):
     found=[0,0,0]
     # define the lower and upper boundaries of the "green"
     # ball in the HSV color space, then initialize the
@@ -17,7 +42,7 @@ def find_center(filename):
     greenLower = (35,85,25) #45, 50, 15
     greenUpper = (100,245,100) #100, 245, 70
 
-    frame = cv2.imread(filename)
+    #frame = cv2.imread(filename)
     blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     # construct a mask for the color "green", then perform
@@ -65,13 +90,14 @@ files = [f for f in glob.glob(image_directory + "/*.png",)]
 sorted_files=sorted(files)
 #image_directory = '/home/ubuntu16/Desktop/Nudes/Images'
 save_directory = '/home/ubuntu16/Desktop/Nudes/edf/images'
-save_file= "values_ball.csv"
+save_file= "center_radius.csv"
 save_pathname=save_directory+"/"+save_file
 for image_filename in sorted_files:
     if image_filename.endswith(".png"):
         print(image_filename)
-        image_pathname=image_directory+"/"+image_filename
-        [x,y,radius]=find_center(image_filename)
+        image_pathname=image_filename
+        image=correct_distortion(image_pathname)
+        [x,y,radius]=find_center(image)
         #if(radius!=0):
         f= open(save_pathname,"a+")
         f.write(str(x)+","+str(y)+","+str(radius)+"\n")

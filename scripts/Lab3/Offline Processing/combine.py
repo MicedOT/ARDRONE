@@ -49,4 +49,4 @@ df3 = df_inner[['lx','ly','lx','cx','cy','cz','cw']]
 df3.columns = ['position_x','position_y','position_z',
                      'orientation_x','orientation_y','orientation_z','orientation_w']
 
-df1.to_csv ('corresponding_uav_pose.csv', index = False, header=True)
+df3.to_csv ('corresponding_uav_pose.csv', index = False, header=True)

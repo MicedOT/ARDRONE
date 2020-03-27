@@ -22,17 +22,12 @@ def distrotion_coefficients():
     return dist_coeffs
 
 
-
-
-
 def eulerAnglesToRotationMatrix(roll,pitch,yaw) :
     
     R_x = np.array([[1,         0,                  0               ],
                     [0,         np.cos(roll),       -np.sin(roll)   ],
                     [0,         np.sin(roll),       np.cos(roll)    ]
                     ])
-        
-        
                     
     R_y = np.array([[np.cos(pitch),     0,      np.sin(pitch)   ],
                     [0,                 1,      0               ],
@@ -69,6 +64,7 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     camera_loc_x = 320
     camera_loc_y = 180
 
+    
     #difference 
 
     diff_x = camera_loc_x - pixel_x
@@ -84,7 +80,7 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     k_inv = np.linalg.inv(k_matrix)
     #p_inv = np.linalg.inv(p_matrix)
     #[delta_x,delta_y,delta_z] = k_inv*p_inv*pixel_delta
-    distance = k_inv.dot(pixel_delta)
+    distance = k_inv.dot(pixel_delta)*translation_z
     #print(np.shape(distance))
     translation_matrix=[[translation_x],[translation_y],[translation_z]]
     #print(np.shape(translation_matrix))
@@ -105,7 +101,7 @@ def main():
 
 
     number_of_iterations=len(df_cr)
-    save_directory = '/home/ubuntu16/Desktop/Nudes/edf/Stuff'
+    save_directory = '/home/mason/Desktop/Transformation'
     save_file= "global_coordinates.csv"
     save_pathname=save_directory+"/"+save_file
     f= open(save_pathname,"a+")
@@ -114,7 +110,7 @@ def main():
         x=df_cr.loc[i, "x"]
         y=df_cr.loc[i, "y"]
         radius=df_cr.loc[i, "radius"]
-        if(radius!=0 and radius<=50):
+        if(radius>=0):
             translation_x=df_p.loc[i, "position_x"]
             translation_y=df_p.loc[i, "position_y"]
             translation_z=df_p.loc[i, "position_z"]

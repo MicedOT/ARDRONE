@@ -25,17 +25,17 @@ def distrotion_coefficients():
 def eulerAnglesToRotationMatrix(roll,pitch,yaw) :
     
     R_x = np.array([[1,         0,                  0               ],
-                    [0,         np.cos(roll),       -np.sin(roll)   ],
-                    [0,         np.sin(roll),       np.cos(roll)    ]
+                    [0,         np.cos(roll),       np.sin(roll)   ],
+                    [0,         -np.sin(roll),       np.cos(roll)    ]
                     ])
                     
-    R_y = np.array([[np.cos(pitch),     0,      np.sin(pitch)   ],
+    R_y = np.array([[np.cos(pitch),     0,      -np.sin(pitch)   ],
                     [0,                 1,      0               ],
-                    [-np.sin(pitch),    0,      np.cos(pitch)   ]
+                    [np.sin(pitch),    0,      np.cos(pitch)   ]
                     ])
                 
-    R_z = np.array([[np.cos(yaw),    -np.sin(yaw),    0 ],
-                    [np.sin(yaw),    np.cos(yaw),     0 ],
+    R_z = np.array([[np.cos(yaw),    np.sin(yaw),    0 ],
+                    [-np.sin(yaw),    np.cos(yaw),     0 ],
                     [0,                 0,            1 ]
                     ])
                     
@@ -57,8 +57,8 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     R =eulerAnglesToRotationMatrix(roll_angle,pitch_angle,yaw_angle)
     
     #cg input of ball
-    pixel_x = x
-    pixel_y = y
+    pixel_x = float(x)
+    pixel_y = float(y)
 
     camera_loc_x = 320
     camera_loc_y = 180
@@ -69,23 +69,24 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
 
     k_inv = np.linalg.inv(k_matrix)
     pixel = [[pixel_x],[pixel_y],[1]]
-    pixel_image = k_inv.dot(pixel)*translation_z
-    pixel_global = R.dot(pixel_image)
+    pixel_drone = k_inv.dot(pixel)*translation_z
+    pixel_global = R.dot(pixel_drone)
     
     diff_x = camera_loc_x - pixel_global[0,:]
     diff_y =  camera_loc_y - pixel_global[1,:]
+
+    diff_x = diff_x*(2*np.tan(0.558505)*translation_z/715.54)
+    diff_y = diff_y*(2*np.tan(0.558505)*translation_z/715.54)
     
-    #diff_x = camera_loc_x - pixel_image[0,:]
-    #diff_y =  camera_loc_y - pixel_image[1,:]
-    
-    distance = [[diff_x],[diff_x],[0]]
+    distance = [[diff_x],[diff_y],[0]]
+    print(distance)
   
     #print(np.shape(distance))
     translation_matrix=[[translation_x],[translation_y],[translation_z]]
     #print(np.shape(translation_matrix))
+    print(translation_matrix)
     #[[delta_x],[delta_y],[delta_z]] = distance
-    ball_location =  translation_matrix+distance
-    #ball_location =  translation_matrix+pixel_global
+    ball_location =  translation_matrix + distance
     #print(np.shape(ball_location))
 
     #print(ball_location)
@@ -116,9 +117,14 @@ def main():
             rotation_z=df_p.loc[i, "orientation_z"]
             rotation_w=df_p.loc[i, "orientation_w"]
 
+
             ball_location=image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rotation_y,rotation_z,rotation_w)
             
-
+            """
+            print(ball_location[0][0])
+            print(ball_location[1][0])
+            print(ball_location[2])
+            """
             global_x=ball_location[0][0]
             global_y=ball_location[1][0]
             f.write(str(global_x)+","+str(global_y)+"\n")

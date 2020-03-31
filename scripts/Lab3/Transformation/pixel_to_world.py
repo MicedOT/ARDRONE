@@ -39,7 +39,6 @@ def eulerAnglesToRotationMatrix(roll,pitch,yaw) :
                     [0,                 0,            1 ]
                     ])
                     
-                    
     R = np.dot(R_z, np.dot( R_y, R_x ))
 
     return R
@@ -66,34 +65,32 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
 
     
     #difference 
-
-    diff_x = camera_loc_x - pixel_x
-    diff_y =  camera_loc_y - pixel_y
-
-    pixel_delta = [[diff_x],[diff_y],[0]]
-
     k_matrix = camera_matrix()
 
-    p_matrix = [[1,0,0],[0,1,0]]
-
-    #print(np.shape(pixel_delta))
     k_inv = np.linalg.inv(k_matrix)
-    #p_inv = np.linalg.inv(p_matrix)
-    #[delta_x,delta_y,delta_z] = k_inv*p_inv*pixel_delta
-    distance = k_inv.dot(pixel_delta)*translation_z
+    pixel = [[pixel_x],[pixel_y],[1]]
+    pixel_image = k_inv.dot(pixel)*translation_z
+    pixel_global = R.dot(pixel_image)
+    
+    diff_x = camera_loc_x - pixel_global[0,:]
+    diff_y =  camera_loc_y - pixel_global[1,:]
+    
+    #diff_x = camera_loc_x - pixel_image[0,:]
+    #diff_y =  camera_loc_y - pixel_image[1,:]
+    
+    distance = [[diff_x],[diff_x],[0]]
+  
     #print(np.shape(distance))
     translation_matrix=[[translation_x],[translation_y],[translation_z]]
     #print(np.shape(translation_matrix))
-    [[delta_x],[delta_y],[delta_z]] = distance
-    ball_location =  translation_matrix+ R.dot(distance)
+    #[[delta_x],[delta_y],[delta_z]] = distance
+    ball_location =  translation_matrix+distance
+    #ball_location =  translation_matrix+pixel_global
     #print(np.shape(ball_location))
 
     #print(ball_location)
 
     return ball_location
-
-
-
 
 def main():
     df_cr= pd.read_csv("center_radius.csv")
@@ -110,7 +107,7 @@ def main():
         x=df_cr.loc[i, "x"]
         y=df_cr.loc[i, "y"]
         radius=df_cr.loc[i, "radius"]
-        if(radius>=0):
+        if(radius!=0 and radius<=20):
             translation_x=df_p.loc[i, "position_x"]
             translation_y=df_p.loc[i, "position_y"]
             translation_z=df_p.loc[i, "position_z"]
@@ -119,14 +116,9 @@ def main():
             rotation_z=df_p.loc[i, "orientation_z"]
             rotation_w=df_p.loc[i, "orientation_w"]
 
-
             ball_location=image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rotation_y,rotation_z,rotation_w)
             
-            """
-            print(ball_location[0][0])
-            print(ball_location[1][0])
-            print(ball_location[2])
-            """
+
             global_x=ball_location[0][0]
             global_y=ball_location[1][0]
             f.write(str(global_x)+","+str(global_y)+"\n")

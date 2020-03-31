@@ -39,8 +39,13 @@ def find_center(frame):
     # define the lower and upper boundaries of the "green"
     # ball in the HSV color space, then initialize the
     # list of tracked points
-    greenLower = (35,85,25) #45, 50, 15
-    greenUpper = (100,245,100) #100, 245, 70
+    #HSV
+    greenLower = (29, 86, 6) #45, 50, 15
+    greenUpper = (64, 255, 255) #100, 245, 70
+
+    #RGB
+    #greenLower = (20,35,0) #45, 50, 15
+    #greenUpper = (50,55,15) #100, 245, 70
 
     #frame = cv2.imread(filename)
     blurred = cv2.GaussianBlur(frame, (11, 11), 0)
@@ -68,28 +73,28 @@ def find_center(frame):
         M = cv2.moments(c)
         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
         # only proceed if the radius meets a minimum size
-        if radius > 10:
+        if radius > 7 and radius < 25: 
             # draw the circle and centroid on the frame,
             # then update the list of tracked points
             cv2.circle(frame, (int(x), int(y)), int(radius),
                 (0, 255, 255), 2)
             cv2.circle(frame, center, 5, (0, 0, 255), -1)
-        """
-        print(int(x)) 
-        print(int(y))
-        print(int(radius))
-        """
-        found=[int(x), int(y), radius]
+            """
+            print(int(x)) 
+            print(int(y))
+            print(int(radius))
+            """
+            found=[int(x), int(y), radius]
     
     #cv2.imshow("Frame", frame)
     #key = cv2.waitKey() & 0xFF
     return found
 
-image_directory = '/home/ubuntu16/Desktop/Nudes/edf/images'
+image_directory = '/home/mason/Downloads/images'
 files = [f for f in glob.glob(image_directory + "/*.png",)]
 sorted_files=sorted(files)
-#image_directory = '/home/ubuntu16/Desktop/Nudes/Images'
-save_directory = '/home/ubuntu16/Desktop/Nudes/edf/images'
+
+save_directory = '/home/mason/Desktop/Transformation'
 save_file= "center_radius.csv"
 save_pathname=save_directory+"/"+save_file
 for image_filename in sorted_files:

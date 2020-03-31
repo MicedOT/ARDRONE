@@ -86,8 +86,8 @@ def find_center(frame):
             """
             found=[int(x), int(y), radius]
     
-    #cv2.imshow("Frame", frame)
-    #key = cv2.waitKey() & 0xFF
+    cv2.imshow("Frame", frame)
+    key = cv2.waitKey() & 0xFF
     return found
 
 image_directory = '/home/mason/Downloads/images'

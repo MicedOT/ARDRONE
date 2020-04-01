@@ -84,6 +84,8 @@ sorted_files=sorted(files)
 save_directory = '/home/ubuntu16/Desktop/Nudes/images'
 save_file= "center_radius.csv"
 save_pathname=save_directory+"/"+save_file
+f= open(save_pathname,"w+")
+f.write("x"+","+"y"+","+"radius"+"\n")
 for image_filename in sorted_files:
     if image_filename.endswith(".png"):
         print(image_filename)
@@ -91,8 +93,8 @@ for image_filename in sorted_files:
         image=correct_distortion(image_pathname)
         [x,y,radius]=find_center(image)
         #if(radius!=0):
-        f= open(save_pathname,"a+")
+        
         f.write(str(x)+","+str(y)+","+str(radius)+"\n")
-        f.close()
+f.close()
             
 

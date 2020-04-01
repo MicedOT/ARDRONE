@@ -120,7 +120,8 @@ def main():
         upper_limit=30
 
         #Filter some false detection and 0 detection from ball coordiante CSV
-        if(radius>0 and radius<30):
+        #if(radius>0 and radius<30):
+        if(radius>=0):	
             translation_x=df_p.loc[i, "position_x"]
             translation_y=df_p.loc[i, "position_y"]
             translation_z=df_p.loc[i, "position_z"]

@@ -8,7 +8,7 @@ Y=[]
 df=pd.read_csv("global_coordinates.csv")
 number_of_iterations=len(df)
 
-read_file="/home/ubuntu16/MEng/New/Their Stuff/gi/scripts/Lab3/igor_mason_check/ziles.txt"
+read_file="ziles.txt"
 r= open(read_file, "r")
 for line in r:
     i=int(line)+1

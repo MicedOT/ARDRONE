@@ -35,14 +35,14 @@ df1['rosbagTimestamp']=df1['rosbagTimestamp'].apply(lambda x:int(x/10000000))#.d
 #print(df1.shape[0])
 
 df2['rosbagTimestamp']=df2['rosbagTimestamp'].apply(lambda x:int(x/10000000))#.div(10000000)
-#print(df1)
-#print(df2)
+print(df1)
+print(df2)
 df_inner = pd.merge(df1, df2, on='rosbagTimestamp', how='inner')
-#print(df_inner)
+print(df_inner)
 df_inner=df_inner.drop_duplicates('rosbagTimestamp',keep='first')
 
 print("done4")
-df3 = df_inner[['lx','ly','lx','cx','cy','cz','cw']]
+df3 = df_inner[['lx','ly','lz','cx','cy','cz','cw']]
 
 #print(df3.shape)
 #print(df3)

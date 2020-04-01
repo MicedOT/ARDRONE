@@ -1,6 +1,6 @@
 import pandas as pd
 
-
+#get corresponding attributes based on rosbagtimestamp
 """
 fields = ['rosbagTimestamp','secs','nsecs']
 

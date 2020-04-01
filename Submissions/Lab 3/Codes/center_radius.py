@@ -36,41 +36,33 @@ def correct_distortion(filename):
 
 def find_center(frame):
     found=[0,0,0]
-    # define the lower and upper boundaries of the "green"
-    # ball in the HSV color space, then initialize the
-    # list of tracked points
+    # define the lower and upper boundaries of the "green" ball in the HSV color space, then initialize the list of tracked points
     greenLower = (29, 86, 6) #45, 50, 15
     greenUpper = (64, 255, 70) #100, 245, 70
 
     #frame = cv2.imread(filename)
     blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    # construct a mask for the color "green", then perform
-    # a series of dilations and erosions to remove any small
-    # blobs left in the mask
+    # construct a mask for the color "green", then perform a series of dilations and erosions to remove any small blobs left in the mask
     mask = cv2.inRange(hsv, greenLower, greenUpper)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
 
-    # find contours in the mask and initialize the current
-    # (x, y) center of the ball
+    # find contours in the mask and initialize the current (x, y) center of the ball
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     center = None
     # only proceed if at least one contour was found
     if len(cnts) > 0:
-        # find the largest contour in the mask, then use
-        # it to compute the minimum enclosing circle and
-        # centroid
+        # find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
         c = max(cnts, key=cv2.contourArea)
         ((x, y), radius) = cv2.minEnclosingCircle(c)
         M = cv2.moments(c)
         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
         # only proceed if the radius meets a minimum size
         if radius > 10:
-            # draw the circle and centroid on the frame,
-            # then update the list of tracked points
+            # draw the circle and centroid on the frame then update the list of tracked points
             cv2.circle(frame, (int(x), int(y)), int(radius),
                 (0, 255, 255), 2)
             cv2.circle(frame, center, 5, (0, 0, 255), -1)
@@ -85,11 +77,11 @@ def find_center(frame):
     #key = cv2.waitKey() & 0xFF
     return found
 
-image_directory = '/home/ubuntu16/Desktop/Nudes/edf/images'
+image_directory = '/home/ubuntu16/Desktop/edf/images'
 files = [f for f in glob.glob(image_directory + "/*.png",)]
 sorted_files=sorted(files)
 #image_directory = '/home/ubuntu16/Desktop/Nudes/Images'
-save_directory = '/home/ubuntu16/Desktop/Nudes/edf/images'
+save_directory = '/home/ubuntu16/Desktop/Nudes/images'
 save_file= "center_radius.csv"
 save_pathname=save_directory+"/"+save_file
 for image_filename in sorted_files:

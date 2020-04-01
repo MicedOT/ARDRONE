@@ -102,13 +102,13 @@ def main():
     save_directory = '/home/ubuntu16/MEng/New/Their Stuff/gi/scripts/Lab3/Transformation'
     save_file= "global_coordinates.csv"
     save_pathname=save_directory+"/"+save_file
-    f= open(save_pathname,"a+")
-            
+    f= open(save_pathname,"w+")
+    f.write("X"+","+"Y"+"\n")        
     for i in range(number_of_iterations):
         x=df_cr.loc[i, "x"]
         y=df_cr.loc[i, "y"]
         radius=df_cr.loc[i, "radius"]
-        if(radius!=0 and radius<=20):
+        if(radius>=0):
             translation_x=df_p.loc[i, "position_x"]
             translation_y=df_p.loc[i, "position_y"]
             translation_z=df_p.loc[i, "position_z"]

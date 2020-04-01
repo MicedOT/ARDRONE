@@ -71,12 +71,14 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     pixel = [[pixel_x],[pixel_y],[1]]
     pixel_drone = k_inv.dot(pixel)*translation_z
     pixel_global = R.dot(pixel_drone)
-    
-    diff_x = camera_loc_x - pixel_global[0,:]
-    diff_y =  camera_loc_y - pixel_global[1,:]
 
-    diff_x = diff_x*(2*np.tan(0.558505)*translation_z/715.54)
-    diff_y = diff_y*(2*np.tan(0.558505)*translation_z/715.54)
+    [[pixel_global_x],[pixel_global_y],[pixel_global_z]]=pixel_global
+    
+    diff_x = (camera_loc_x - pixel_global_x)*(2*np.tan(0.558505)*float(translation_z)/715.54)
+    diff_y = (camera_loc_y - pixel_global_y)*(2*np.tan(0.558505)*float(translation_z)/715.54)
+
+    #diff_x = diff_x*(2*np.tan(0.558505)*translation_z/715.54)
+    #diff_y = diff_y*(2*np.tan(0.558505)*translation_z/715.54)
     
     distance = [[diff_x],[diff_y],[0]]
     print(distance)
@@ -84,9 +86,11 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     #print(np.shape(distance))
     translation_matrix=[[translation_x],[translation_y],[translation_z]]
     #print(np.shape(translation_matrix))
-    print(translation_matrix)
+    #print(translation_matrix)
     #[[delta_x],[delta_y],[delta_z]] = distance
-    ball_location =  translation_matrix + distance
+
+    
+    ball_location =  np.add(translation_matrix,distance)
     #print(np.shape(ball_location))
 
     #print(ball_location)

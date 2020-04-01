@@ -1,0 +1,13 @@
+Read Me
+
+bag_to_iamges.py ------ Extract the Image Frame from rosbag
+center_radius.py ------ Image Detection (generate ball center location in image frame)
+combine.py ----- Extract the drone location and orientation from rosbag
+pixel_to_world.py ----- Transofrmation (Transfer Ball location from image frame to global frame)
+plot.py ----- Plot the transformation results
+
+
+
+1. The code and .csv file was stored seperately
+2. To run  the code please change the directory on each script based on the file location on your computer. 
+

@@ -6,8 +6,8 @@ from tf.transformations import euler_from_quaternion
 
 def camera_matrix():
     # K(given)
-    cam_matrix = [[698.86,   0.00, 306.91], 
-                 [  0.00, 699.13, 150.34],
+    cam_matrix = [[604.62,   0.00, 320.5], 
+                 [  0.00, 604.62, 180.5],
                  [  0.00,   0.00,   1.00]]
 
     return cam_matrix
@@ -81,6 +81,7 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     k_matrix = camera_matrix()
 
     p_matrix = np.matrix([[0,-1,0],[-1,0,0],[0,0,-1]])
+    pt_matrix = np.matrix([[0],[0.0125],[-0.025]])
     #print(k_matrix)
     #print(p_matrix)
     #print(np.shape(pixel_delta))
@@ -91,7 +92,7 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     distance = k_inv.dot(pixel_delta)
     distance=distance*translation_z
     #print(np.shape(distance))
-    distance=p_matrix.dot(distance)
+    distance=pt_matrix+p_matrix.dot(distance)
     #print(distance)
     translation_matrix=[[translation_x],[translation_y],[translation_z]]
     #print(translation_matrix)
@@ -108,12 +109,12 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
 
 
 def main():
-    df_cr= pd.read_csv("center_radius.csv")
+    df_cr= pd.read_csv("corresponding_center_radius.csv")
     df_p=pd.read_csv("corresponding_uav_pose.csv")
 
 
     number_of_iterations=len(df_cr)
-    save_directory = '/home/ubuntu16/MEng/New/Their Stuff/gi/scripts/Lab3/igor_mason_check'
+    save_directory = '/home/ubuntu16/Desktop/Nudes/Project/processing'
     save_file= "global_coordinates.csv"
     save_pathname=save_directory+"/"+save_file
     f= open(save_pathname,"w+")
@@ -123,7 +124,7 @@ def main():
         y=df_cr.loc[i, "y"]
         radius=df_cr.loc[i, "radius"]
         upper_limit=30
-        if(radius>6 and radius<=30):
+        if(radius>5):
             translation_x=df_p.loc[i, "position_x"]
             translation_y=df_p.loc[i, "position_y"]
             translation_z=df_p.loc[i, "position_z"]

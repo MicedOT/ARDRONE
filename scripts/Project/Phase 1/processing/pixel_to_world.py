@@ -118,7 +118,7 @@ def main():
     save_file= "global_coordinates.csv"
     save_pathname=save_directory+"/"+save_file
     f= open(save_pathname,"w+")
-    f.write("X"+","+"Y"+"\n")
+    f.write("X"+","+"Y"+","+"RADIUS"+"\n")
     for i in range(number_of_iterations):
         x=df_cr.loc[i, "x"]
         y=df_cr.loc[i, "y"]
@@ -135,7 +135,7 @@ def main():
 
 
             ball_location=image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rotation_y,rotation_z,rotation_w)
-            
+            ball_edge_location=image_to_frame((x+radius),y,translation_x,translation_y,translation_z,rotation_x,rotation_y,rotation_z,rotation_w)
             """
             [[global_x],[global_y],[walla]]=ball_location
             print(global_x)
@@ -148,9 +148,20 @@ def main():
             global_y=global_y.replace(']','')
             global_x=global_x.replace('[','')
             global_y=global_y.replace('[','')
+
+
+            global_edge_x=str(ball_edge_location[0][0])
+            global_edge_y=str(ball_edge_location[1][0])
+            global_edge_x=global_edge_x.replace(']','')
+            global_edge_y=global_edge_y.replace(']','')
+            global_edge_x=global_edge_x.replace('[','')
+            global_edge_y=global_edge_y.replace('[','')
+            diff_x=float(global_x)-float(global_edge_x)
+            diff_y=float(global_y)-float(global_edge_y)
+            radius_calc=np.sqrt((np.power(diff_x, 2)+np.power(diff_y, 2)))
             #print(global_x)
             #print(global_y)
-            f.write(str(global_x)+","+str(global_y)+"\n")
+            f.write(str(global_x)+","+str(global_y)+","+str(radius_calc)+"\n")
             #break
     f.close()
     

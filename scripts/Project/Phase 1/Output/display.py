@@ -19,15 +19,14 @@ plt.show()
 """
 
 m = KMeans(7)
-m.fit(df)
+m.fit(df[['X','Y']])
 df['cl'] = m.labels_
 df.plot.scatter('X', 'Y', c='cl', colormap='gist_rainbow')
 plt.show()
 """
 kmeans = KMeans(n_clusters=7)
-kmeans = kmeans.fit(df)
-labels = kmeans.predict(df)
+kmeans = kmeans.fit(df[['X','Y']])
+labels = kmeans.predict(df[['X','Y']])
 centroids = kmeans.cluster_centers_
 print(centroids) # From sci-kit learn
-#dataset_array = dataset.values
 """

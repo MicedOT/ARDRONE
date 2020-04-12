@@ -119,7 +119,7 @@ def orientation_to_global(orientation,rotation_x,rotation_y,rotation_z,rotation_
     yaw_angle = euler[2]
     
     
-    angle=orientation+yaw_angle
+    angle=(yaw_angle-(np.pi/2))-orientation
     return angle
 
 

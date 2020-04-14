@@ -1,0 +1,21 @@
+Launch
+- project2020.world under your gazebo (Updated)
+- world.launch in your launch files
+
+
+Phase 1
+
+Output
+- display.py 1st part plots clusters second finds centroids (for red circles) 
+- display_images.py 1st part plots clusters second finds centroids (for 4 images) 
+
+Processing
+- combine2 and 3 combines corresponding frames of the center_radius and pic_orientation to match with the uav poses
+- orientation.py finds the orientation and position of the image
+- center_radius.py finds the center and radius of the ball along with its radius 
+- pixel_to_world.py finds the  corresponding global coordinates of the circles along with their radius
+- pixel_to_world_images.py finds the  corresponding global coordinates of the images along with their orientation
+
+
+Scripts
+

@@ -62,6 +62,15 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     
     R =eulerAnglesToRotationMatrix(roll_angle,pitch_angle,yaw_angle)
     
+    x_ground=np.tan(roll_angle)
+    #print(x_ground)
+    y_ground=np.tan(pitch_angle)
+    #print(y_ground)
+    hyp=np.sqrt(np.power(x_ground,2)+np.power(y_ground,2))
+    dist_ang=hyp    
+    top_angle=np.arctan(dist_ang) 
+    #print(top_angle)   
+    #top_angle=0
     #cg input of ball
     pixel_x = x
     pixel_y = y
@@ -90,7 +99,7 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     #distance = k_inv.dot(p_inv.dot(pixel_delta))
     
     distance = k_inv.dot(pixel_delta)
-    distance=distance*translation_z
+    distance=distance*translation_z/np.cos(top_angle)
     #print(np.shape(distance))
     distance=pt_matrix+p_matrix.dot(distance)
     #print(distance)
@@ -124,7 +133,7 @@ def main():
         y=df_cr.loc[i, "y"]
         radius=df_cr.loc[i, "radius"]
         upper_limit=30
-        if(radius>5):
+        if(radius>35):
             translation_x=df_p.loc[i, "position_x"]
             translation_y=df_p.loc[i, "position_y"]
             translation_z=df_p.loc[i, "position_z"]

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # Parameters
 KP = 5.0  # attractive potential gain
 #ETA = [2400.0,2040.0,1920.0,1500.0,1200.0,960.0,900.0]  # repulsive potential gain
-ETA = [1800.0,1800.0,1800.0,960.0]  # repulsive potential gain
+ETA = [15000.0,15000.0,15000.0,960.0]  # repulsive potential gain
 AREA_WIDTH = 10.0  # potential area width [m]
 i=0
 show_animation = True
@@ -144,16 +144,16 @@ def draw_heatmap(data):
 
 def main():
     print("potential_field_planning start")
-    start=1
-    end=4
+    start=2
+    end=1
     x_array=[1,4.26,0.88,4.33,7.69]
     y_array=[1,1.23,5.48,8.04,4.24]
     sx = x_array[start]  # start x position [m]
     sy = y_array[start]  # start y positon [m]
     gx = x_array[end]  # goal x position [m]
     gy = y_array[end]  # goal y position [m]
-    grid_size = 0.1  # potential grid size [m]
-    robot_radius = [1.8,1.6,1.4,1.2]  # robot radius [m]
+    grid_size = 0.05  # potential grid size [m]
+    robot_radius = [2.0,1.6,2.2,1.2]  # robot radius [m]
 
     #ox = [6.23, 4.48, 7.51, 0.59, 2.19, 1.43, 5.81]  # obstacle x position list [m]
     #oy = [1.91, 3.44, 7.15, 8.36, 7.31, 2.50, 6.53]  # obstacle y position list [m]

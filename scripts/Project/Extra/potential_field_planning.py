@@ -10,9 +10,10 @@ import matplotlib.pyplot as plt
 
 # Parameters
 KP = 5.0  # attractive potential gain
-ETA = 100.0  # repulsive potential gain
+#ETA = [2400.0,2040.0,1920.0,1500.0,1200.0,960.0,900.0]  # repulsive potential gain
+ETA = [1800.0,1800.0,1800.0,960.0]  # repulsive potential gain
 AREA_WIDTH = 10.0  # potential area width [m]
-
+i=0
 show_animation = True
 
 
@@ -34,6 +35,8 @@ def calc_potential_field(gx, gy, ox, oy, reso, rr):
             y = iy * reso + miny
             ug = calc_attractive_potential(x, y, gx, gy)
             uo = calc_repulsive_potential(x, y, ox, oy, rr)
+            #print(uo)
+            i=i+1
             uf = ug + uo
             pmap[ix][iy] = uf
 
@@ -57,11 +60,11 @@ def calc_repulsive_potential(x, y, ox, oy, rr):
     # calc repulsive potential
     dq = np.hypot(x - ox[minid], y - oy[minid])
 
-    if dq <= rr:
+    if dq <= rr[minid]:
         if dq <= 0.1:
             dq = 0.1
 
-        return 0.5 * ETA * (1.0 / dq - 1.0 / rr) ** 2
+        return 0.5 * ETA[minid] * (1.0 / dq - 1.0 / rr[minid]) ** 2
     else:
         return 0.0
 
@@ -141,19 +144,22 @@ def draw_heatmap(data):
 
 def main():
     print("potential_field_planning start")
-    start=0
-    end=3
-    x_array=[4.26,0.88,4.33,7.69]
-    y_array=[1.23,5.48,8.04,4.24]
+    start=1
+    end=4
+    x_array=[1,4.26,0.88,4.33,7.69]
+    y_array=[1,1.23,5.48,8.04,4.24]
     sx = x_array[start]  # start x position [m]
     sy = y_array[start]  # start y positon [m]
     gx = x_array[end]  # goal x position [m]
     gy = y_array[end]  # goal y position [m]
     grid_size = 0.1  # potential grid size [m]
-    robot_radius = 1.2  # robot radius [m]
+    robot_radius = [1.8,1.6,1.4,1.2]  # robot radius [m]
 
-    ox = [6.23, 4.48, 7.51, 0.59, 2.19, 1.43, 5.81]  # obstacle x position list [m]
-    oy = [1.91, 3.44, 7.15, 8.36, 7.31, 2.50, 6.53]  # obstacle y position list [m]
+    #ox = [6.23, 4.48, 7.51, 0.59, 2.19, 1.43, 5.81]  # obstacle x position list [m]
+    #oy = [1.91, 3.44, 7.15, 8.36, 7.31, 2.50, 6.53]  # obstacle y position list [m]
+
+    ox = [5.35, 6.66, 1.39, 1.43]  # obstacle x position list [m]
+    oy = [2.67, 6.84, 7.83, 2.50]  # obstacle y position list [m]
 
     if show_animation:
         plt.grid(True)

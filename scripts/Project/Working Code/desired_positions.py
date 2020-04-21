@@ -26,7 +26,11 @@ class ROSDesiredPositionGenerator(object):
         self.check = rospy.Subscriber('/check_type', String, self.choose_type)
         #self.check = rospy.Subscriber('/check_mate', String, self.send)
         
+        self.check = rospy.Subscriber('/ask_land', String, self.make_land)
 
+        # Final Entry Commands
+        self.pubLand    = rospy.Publisher('/ardrone/land',Empty)
+        self.pubToggle   = rospy.Publisher('/start_stop_toggle',String,queue_size = 5)
 
         self.X = np.linspace(0, 0, num=self.number_of_points)
         self.Y = np.linspace(0, 0, num=self.number_of_points)
@@ -56,8 +60,10 @@ class ROSDesiredPositionGenerator(object):
         self.show_animation = False
 
         #self.order_pic=[3,2,1,4]
-        self.order_pic=[1,2,3,4]
-        
+        #self.order_pic=[1,2,3,4]
+        x=np.loadtxt('order.txt',delimiter=None)
+        self.order_pic=x.astype(int)
+
         self.x_array=[1,4.26,0.88,4.33,7.69]
         self.y_array=[1,1.23,5.48,8.04,4.24]
         self.angle_orientation=[0,-1.26,0.12,-0.717,2.11]
@@ -498,7 +504,21 @@ class ROSDesiredPositionGenerator(object):
         if(message.data=="project"):
             self.project()
 
-        
+    def choose_type(self,message):
+        if(message.data=="land"):
+            self.X=[1,1,1]
+            self.desired_position_counter=0
+            self.number_of_points=(self.X)
+            self.Y=[1,1,1]
+            self.Z=[0,0,0]
+
+            self.X_euler = np.linspace(0, 0 , self.number_of_points)
+            self.Y_euler = np.linspace(0, 0 , self.number_of_points)
+            self.Z_euler = np.linspace(0, 0 , self.number_of_points)
+            msg.data="stop"
+            
+            self.pubToggle.publish(msg)
+            self.pubLand.publish(Empty())
 
     #Publish Desired Trajectory
     def send(self,message):

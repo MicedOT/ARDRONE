@@ -5,7 +5,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-show_animation = True
+show_animation = False
 
 start=0
 end=4
@@ -30,7 +30,7 @@ class RRT:
             self.parent = None
 
     def __init__(self, start, goal, obstacle_list, rand_area,
-                 expand_dis=3.0, path_resolution=0.5, goal_sample_rate=5, max_iter=500):
+                 expand_dis=1.0, path_resolution=0.5, goal_sample_rate=10, max_iter=500):
         """
         Setting Parameter
 
@@ -195,39 +195,4 @@ class RRT:
         return d, theta
 
 
-def main(gx=x_array[end], gy=y_array[end]):
-    print("start " + __file__)
 
-    # ====Search Path with RRT====
-    obstacleList = [
-        (6.23, 1.9, 1.2),
-        (4.48, 3.44, 1.02),
-        (7.51, 7.14, 0.96),
-        (0.59,8.35, 0.75),
-        (2.19, 7.31, 0.6),
-        (1.43,2.5, 0.48),
-        (5.8, 6.53 , 0.45)
-    ]  # [x, y, radius]
-    # Set Initial parameters
-    rrt = RRT(start=[x_array[start], y_array[start]],
-              goal=[gx, gy],
-              rand_area=[0, 9],
-              obstacle_list=obstacleList)
-    path = rrt.planning(animation=show_animation)
-
-    if path is None:
-        print("Cannot find path")
-    else:
-        print("found path!!")
-
-        # Draw final path
-        if show_animation:
-            rrt.draw_graph()
-            plt.plot([x for (x, y) in path], [y for (x, y) in path], '-r')
-            plt.grid(True)
-            plt.pause(0.01)  # Need for Mac
-            plt.show()
-
-
-if __name__ == '__main__':
-    main()

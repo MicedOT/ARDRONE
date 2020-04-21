@@ -6,8 +6,8 @@ import sys
 
 import matplotlib.pyplot as plt
 
-start=4
-end=1
+start=0
+end=4
 x_array=[1,4.26,0.88,4.33,7.69]
 y_array=[1,1.23,5.48,8.04,4.24]
 

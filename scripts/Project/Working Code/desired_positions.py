@@ -55,8 +55,8 @@ class ROSDesiredPositionGenerator(object):
 
         self.show_animation = False
 
-        self.order_pic=[3,2,1,4]
-        #self.order_pic=[1,2,3,4]
+        #self.order_pic=[3,2,1,4]
+        self.order_pic=[1,2,3,4]
         
         self.x_array=[1,4.26,0.88,4.33,7.69]
         self.y_array=[1,1.23,5.48,8.04,4.24]
@@ -171,40 +171,69 @@ class ROSDesiredPositionGenerator(object):
     
     #RRT Path Planning
     def rrt_planning(self):
-        
+        #initialize array
         X = []
         Y = []
-
-        l = len(self.order_pic)
+        Z_euler=[]
+        #set start point for orientation 
+        angle_s= self.angle_orientation[0]
+        #set start point for path
         x_s = self.x_array[0]
         y_s = self.x_array[0]
+        
+        l = len(self.order_pic)
+	    #Generate Path & Orientation based on given order
         for i in range(l):
+            #get order number
             n = self.order_pic[i]
             print(n)
+            #set goal point
             x_g = self.x_array[n]
             y_g = self.y_array[n]
-
+            angle_g = self.angle_orientation[n]
+            angle_g = angle_g+np.pi
+            #call RRT from rrt.py
             rrt = RRT(start=[x_s, y_s], goal=[x_g, y_g], rand_area=[0, 9], obstacle_list=self.obstacleList)
-
             path = rrt.planning(animation=False)
-
             X_p,Y_p = map(list,zip(*path))
-
+            #Reverse X,Y coordinate for each segment
             X_p = np.flipud(X_p)
             Y_p = np.flipud(Y_p)
 
-            l = len(X_p)-1
-            num_point = 500
+            m = len(X_p)-1
+            
+            num_point = 800
+            #Store the path
+            for j in range(m):
+                #linaer interpolation of path
+                n_x = np.linspace(X_p[j], X_p[j+1], num=num_point)
+                n_y = np.linspace(Y_p[j], Y_p[j+1], num=num_point)
 
-            for i in range(l):
-                n_x = np.linspace(X_p[i], X_p[i+1], num=num_point)
-                n_y = np.linspace(Y_p[i], Y_p[i+1], num=num_point)
                 X = np.concatenate([X,n_x])
                 Y = np.concatenate([Y,n_y])
+                     
+            #linear interpolation of orientation
+            n_z_euler=np.linspace(angle_s , angle_g, m*num_point)
+            Z_euler=np.concatenate([Z_euler,n_z_euler])
 
+            #update start point
             x_s = x_g
             y_s = y_g
-        return X, Y
+            angle_s = angle_g
+        
+        
+
+        Z = np.ones(len(X))*1.3
+        X_euler = np.linspace(0, 0 , len(X))
+        Y_euler = np.linspace(0, 0 , len(X))
+        #print(X)
+        
+        self.number_of_points=len(X)
+        return X, Y, Z, X_euler, Y_euler, Z_euler
+        
+
+        #Path = np.array([X, Y, Z, X_euler, Y_euler, Z_euler])
+        #return Path
 
 
     def calc_potential_field(self,gx, gy, ox, oy, reso, rr):
@@ -413,7 +442,15 @@ class ROSDesiredPositionGenerator(object):
         self.X_euler = np.linspace(0, 0 , self.number_of_points)
         self.Y_euler = np.linspace(0, 0 , self.number_of_points)
         
-    
+    def project(self):
+        #Data = self.rrt_planning()
+        #[self.X, self.Y, self.Z, self.X_euler, self.Y_euler, self.Z_euler] = Data
+        self.desired_position_counter=0
+        self.X, self.Y, self.Z, self.X_euler, self.Y_euler, self.Z_euler = self.rrt_planning()
+        print(len(self.X))
+        print(len(self.Y_euler))
+        print(len(self.Z_euler))
+        
         
     #Choose Path Type
     def choose_type(self,message):
@@ -428,7 +465,7 @@ class ROSDesiredPositionGenerator(object):
         if(message.data=="ready"):
             self.ready()
         if(message.data=="project"):
-            self.project_trajectory()
+            self.project()
 
         
 
@@ -448,7 +485,6 @@ class ROSDesiredPositionGenerator(object):
         msg.pose.orientation.z = Z_quaternion
         msg.pose.orientation.w = W_quaternion
         self.desired_position_counter = (self.desired_position_counter + 1)%self.number_of_points
-
         
         self.pub_pos_des.publish(msg) 
 

@@ -220,8 +220,39 @@ class ROSDesiredPositionGenerator(object):
             x_s = x_g
             y_s = y_g
             angle_s = angle_g
+
+
+        #"""
+        #Send back to Takeoff point
+        n=0
+        x_g = self.x_array[n]
+        y_g = self.y_array[n]
+        angle_g = self.angle_orientation[n]
+        angle_g = angle_g+np.pi
+        #call RRT from rrt.py
+        rrt = RRT(start=[x_s, y_s], goal=[x_g, y_g], rand_area=[0, 9], obstacle_list=self.obstacleList)
+        path = rrt.planning(animation=False)
+        X_p,Y_p = map(list,zip(*path))
+        #Reverse X,Y coordinate for each segment
+        X_p = np.flipud(X_p)
+        Y_p = np.flipud(Y_p)
+
+        m = len(X_p)-1
         
-        
+        num_point = 800
+        #Store the path
+        for j in range(m):
+            #linaer interpolation of path
+            n_x = np.linspace(X_p[j], X_p[j+1], num=num_point)
+            n_y = np.linspace(Y_p[j], Y_p[j+1], num=num_point)
+            X = np.concatenate([X,n_x])
+            Y = np.concatenate([Y,n_y])
+                     
+        #linear interpolation of orientation
+        n_z_euler=np.linspace(angle_s , angle_g, m*num_point)
+        Z_euler=np.concatenate([Z_euler,n_z_euler])
+        #"""
+
 
         Z = np.ones(len(X))*1.3
         X_euler = np.linspace(0, 0 , len(X))

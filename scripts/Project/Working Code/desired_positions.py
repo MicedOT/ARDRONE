@@ -13,7 +13,8 @@ import numpy as np
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String, Bool
 from tf.transformations import quaternion_from_euler
-from std_msgs.msg import Empty            # for land/takeoff/emergency
+from std_msgs.msg import Empty
+
 from rrt import RRT
 
 
@@ -26,7 +27,6 @@ class ROSDesiredPositionGenerator(object):
         self.pub_pos_des = rospy.Publisher('/desired_positions', PoseStamped, queue_size = self.number_of_points)
         self.check = rospy.Subscriber('/check_type', String, self.choose_type)
         #self.check = rospy.Subscriber('/check_mate', String, self.send)
-        
         self.check = rospy.Subscriber('/ask_land', String, self.make_land)
 
         # Final Entry Commands
@@ -62,9 +62,9 @@ class ROSDesiredPositionGenerator(object):
 
         #self.order_pic=[3,2,1,4]
         #self.order_pic=[1,2,3,4]
-        x=np.loadtxt('/home/ubuntu16/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
+        x=np.loadtxt('/home/mason/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
         self.order_pic=x.astype(int)
-
+        
         self.x_array=[1,4.26,0.88,4.33,7.69]
         self.y_array=[1,1.23,5.48,8.04,4.24]
         self.angle_orientation=[0,-1.26,0.12,-0.717,2.11]
@@ -90,14 +90,7 @@ class ROSDesiredPositionGenerator(object):
         X2 = np.linspace(1, -1, num=self.number_of_points/2)
         Y2 = np.linspace(0, 2, num=self.number_of_points/2)
         Z2 = np.linspace(2, 1, num=self.number_of_points/2)
-        """   
-        X1 = np.linspace(0, 0, num=self.number_of_points/2)
-        Y1 = np.linspace(0, 0, num=self.number_of_points/2)
-        Z1 = np.linspace(1, 6, num=self.number_of_points/2)
-        X2 = np.linspace(0, 0, num=self.number_of_points/2)
-        Y2 = np.linspace(0, 0, num=self.number_of_points/2)
-        Z2 = np.linspace(6, 1, num=self.number_of_points/2)
-        """    
+
         self.X=np.concatenate([X1,X2])
         self.Y=np.concatenate([Y1,Y2])
         self.Z=np.concatenate([Z1,Z2])
@@ -189,6 +182,8 @@ class ROSDesiredPositionGenerator(object):
         y_s = self.x_array[0]
         
         l = len(self.order_pic)
+        maxIter = 1000
+        obstacleList=self.obstacleList
 	    #Generate Path & Orientation based on given order
         for i in range(l):
             #get order number
@@ -202,7 +197,10 @@ class ROSDesiredPositionGenerator(object):
             #call RRT from rrt.py
             rrt = RRT(start=[x_s, y_s], goal=[x_g, y_g], rand_area=[0, 9], obstacle_list=self.obstacleList)
             path = rrt.planning(animation=False)
-            X_p,Y_p = map(list,zip(*path))
+            #print(path)
+            smoothedPath = rrt.path_smoothing(path, maxIter, obstacleList)
+            #print(smoothedPath)
+            X_p,Y_p = map(list,zip(*smoothedPath))
             #Reverse X,Y coordinate for each segment
             X_p = np.flipud(X_p)
             Y_p = np.flipud(Y_p)
@@ -227,40 +225,7 @@ class ROSDesiredPositionGenerator(object):
             x_s = x_g
             y_s = y_g
             angle_s = angle_g
-
-
-        #"""
-        #Send back to Takeoff point
-        n=0
-        x_g = self.x_array[n]
-        y_g = self.y_array[n]
-        angle_g = self.angle_orientation[n]
-        angle_g = angle_g+np.pi
-        #call RRT from rrt.py
-        rrt = RRT(start=[x_s, y_s], goal=[x_g, y_g], rand_area=[0, 9], obstacle_list=self.obstacleList)
-        path = rrt.planning(animation=False)
-        X_p,Y_p = map(list,zip(*path))
-        #Reverse X,Y coordinate for each segment
-        X_p = np.flipud(X_p)
-        Y_p = np.flipud(Y_p)
-
-        m = len(X_p)-1
         
-        num_point = 800
-        #Store the path
-        for j in range(m):
-            #linaer interpolation of path
-            n_x = np.linspace(X_p[j], X_p[j+1], num=num_point)
-            n_y = np.linspace(Y_p[j], Y_p[j+1], num=num_point)
-            X = np.concatenate([X,n_x])
-            Y = np.concatenate([Y,n_y])
-                     
-        #linear interpolation of orientation
-        n_z_euler=np.linspace(angle_s , angle_g, m*num_point)
-        Z_euler=np.concatenate([Z_euler,n_z_euler])
-        #"""
-
-
         Z = np.ones(len(X))*1.3
         X_euler = np.linspace(0, 0 , len(X))
         Y_euler = np.linspace(0, 0 , len(X))
@@ -274,211 +239,6 @@ class ROSDesiredPositionGenerator(object):
         #return Path
 
 
-    def calc_potential_field(self,gx, gy, ox, oy, reso, rr):
-        minx = min(ox) - self.AREA_WIDTH / 2.0
-        miny = min(oy) - self.AREA_WIDTH / 2.0
-        maxx = max(ox) + self.AREA_WIDTH / 2.0
-        maxy = max(oy) + self.AREA_WIDTH / 2.0
-        xw = int(round((maxx - minx) / reso))
-        yw = int(round((maxy - miny) / reso))
-
-        # calc each potential
-        pmap = [[0.0 for i in range(yw)] for i in range(xw)]
-
-        for ix in range(xw):
-            x = ix * reso + minx
-
-            for iy in range(yw):
-                y = iy * reso + miny
-                ug = self.calc_attractive_potential(x, y, gx, gy)
-                uo = self.calc_repulsive_potential(x, y, ox, oy, rr)
-                uf = ug + uo
-                pmap[ix][iy] = uf
-
-        return pmap, minx, miny
-
-
-    def calc_attractive_potential(self,x, y, gx, gy):
-        return 0.5 * self.KP * np.hypot(x - gx, y - gy)
-
-
-    def calc_repulsive_potential(self,x, y, ox, oy, rr):
-        # search nearest obstacle
-        minid = -1
-        dmin = float("inf")
-        for i, _ in enumerate(ox):
-            d = np.hypot(x - ox[i], y - oy[i])
-            if dmin >= d:
-                dmin = d
-                minid = i
-
-        # calc repulsive potential
-        dq = np.hypot(x - ox[minid], y - oy[minid])
-
-        if dq <= rr[minid]:
-            if dq <= 0.1:
-                dq = 0.1
-
-            return 0.5 * self.ETA[minid] * (1.0 / dq - 1.0 / rr[minid]) ** 2
-        else:
-            return 0.0
-
-
-    def get_motion_model(self):
-        # dx, dy
-        motion = [[1, 0],
-                  [0, 1],
-                  [-1, 0],
-                  [0, -1],
-                  [-1, -1],
-                  [-1, 1],
-                  [1, -1],
-                  [1, 1]]
-
-        return motion
-
-
-    def potential_field_planning(self,sx, sy, gx, gy, ox, oy, reso, rr):
-
-        # calc potential field
-        pmap, minx, miny = self.calc_potential_field(gx, gy, ox, oy, reso, rr)
-
-        # search path
-        d = np.hypot(sx - gx, sy - gy)
-        ix = round((sx - minx) / reso)
-        iy = round((sy - miny) / reso)
-        gix = round((gx - minx) / reso)
-        giy = round((gy - miny) / reso)
-
-        if self.show_animation:
-            draw_heatmap(pmap)
-            # for stopping simulation with the esc key.
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                    lambda event: [exit(0) if event.key == 'escape' else None])
-            plt.plot(ix, iy, "*k")
-            plt.plot(gix, giy, "*m")
-
-        rx, ry = [sx], [sy]
-        motion = self.get_motion_model()
-        while d >= reso:
-            minp = float("inf")
-            minix, miniy = -1, -1
-            for i, _ in enumerate(motion):
-                inx = int(ix + motion[i][0])
-                iny = int(iy + motion[i][1])
-                if inx >= len(pmap) or iny >= len(pmap[0]):
-                    p = float("inf")  # outside area
-                else:
-                    p = pmap[inx][iny]
-                if minp > p:
-                    minp = p
-                    minix = inx
-                    miniy = iny
-            ix = minix
-            iy = miniy
-            xp = ix * reso + minx
-            yp = iy * reso + miny
-            d = np.hypot(gx - xp, gy - yp)
-            rx.append(xp)
-            ry.append(yp)
-
-            if self.show_animation:
-                plt.plot(ix, iy, ".r")
-                plt.pause(0.01)
-
-        l = len(rx)-1
-        new_x = []
-        new_y = []
-        for i in range(l):
-            n_x = np.linspace(rx[i], rx[i+1], num=50)
-            n_y = np.linspace(ry[i], ry[i+1], num=50)
-            new_x = np.concatenate([new_x,n_x])
-            new_y = np.concatenate([new_y,n_y])
-
-        print("Goal!!")
-        #print(rx)
-        #print(ry)
-        #return rx,ry
-        return new_x, new_y
-
-
-    def draw_heatmap(data):
-        data = np.array(data).T
-        plt.pcolor(data, vmax=100.0, cmap=plt.cm.Blues)
-
-
-    def path_two_points(self,first_point,second_point):
-        print("potential_field_planning start")
-        start=first_point
-        end=second_point
-        sx = self.x_array[start]  # start x position [m]
-        print(sx)
-        sy = self.y_array[start]  # start y positon [m]
-        gx = self.x_array[end]  # goal x position [m]
-        print(gx)
-        gy = self.y_array[end]  # goal y position [m]
-        grid_size = 0.05  # potential grid size [m]
-        #robot_radius = 1.2  # robot radius [m]
-        robot_radius = [1.8,1.6,1.6,1.2]  # robot radius [m]
-
-        # 4.48,  5.81,
-        # 3.44,  6.53,
-        #ox = [6.23, 3.88, 7.51, 0.59, 2.49, 1.43, 5.81]  # obstacle x position list [m]
-        #oy = [1.91, 3.44, 7.15, 8.36, 7.01, 2.50, 6.53]  # obstacle y position list [m]
-
-        ox = [4.35, 5.81, 1.90, 1.43]  # obstacle x position list [m]
-        oy = [3.44, 6.53, 7.00, 2.50]  # obstacle y position list [m]
-
-        
-        if self.show_animation:
-            plt.grid(True)
-            plt.axis("equal")
-
-        # path generation
-        rx,ry = self.potential_field_planning(
-            sx, sy, gx, gy, ox, oy, grid_size, robot_radius)
-        if self.show_animation:
-            plt.show()
-
-        return rx,ry
-        
-    def project_trajectory(self):
-        accumulate_X=[]
-        accumulate_Y=[]
-        accumulate_Z_euler=[]
-        first_point=0
-        first_angle= self.angle_orientation[first_point]
-        x,y=self.rrt_planning()
-        for i in self.order_pic:
-            second_point=i
-            
-            #x,y=self.path_two_points(first_point,second_point)
-            
-            second_angle= self.angle_orientation[second_point]
-            second_angle=second_angle+np.pi
-            z_euler=np.linspace(first_angle , second_angle, len(x))
-            if(first_point==0):
-                accumulate_X=x                
-                accumulate_Y=y
-                accumulate_Z_euler = z_euler
-            else:
-                accumulate_X=np.concatenate([accumulate_X,x])
-                accumulate_Y=np.concatenate([accumulate_Y,y])
-                accumulate_Z_euler=np.concatenate([accumulate_Z_euler,z_euler])
-            first_angle=second_angle
-            first_point=second_point
-        self.desired_position_counter=0
-        #self.X=accumulate_X
-        #self.Y=accumulate_Y
-        self.X = x
-        self.Y = y
-        self.number_of_points=len(self.X)
-        
-        self.Z_euler = accumulate_Z_euler
-        self.Z = np.ones(self.number_of_points)*1.3
-
-        self.X_euler = np.linspace(0, 0 , self.number_of_points)
-        self.Y_euler = np.linspace(0, 0 , self.number_of_points)
         
     def project(self):
         #Data = self.rrt_planning()
@@ -520,6 +280,7 @@ class ROSDesiredPositionGenerator(object):
             
             self.pubToggledes.publish(msg)
             self.pubLanddes.publish(Empty())
+        
 
     #Publish Desired Trajectory
     def send(self,message):

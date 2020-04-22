@@ -72,7 +72,7 @@ class ROSControllerNode(object):
         self.pic_z=[1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3]
 
         self.waypoint_counter=0
-        x=np.loadtxt('/home/ubuntu16/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
+        x=np.loadtxt('/home/mason/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
         self.order_pic=x.astype(int)
         self.x_position_array=[1,4.26,0.88,4.33,7.69,1]
         self.y_position_array=[1,1.23,5.48,8.04,4.24,1]
@@ -200,15 +200,17 @@ class ROSControllerNode(object):
             self.request_pic.publish(capture_message)
            
     def mission_planner(self,random):
-        margin = 0.05
-        waypoint_x=self.x_position_array[self.waypoint_counter]
-        waypoint_y=self.x_position_array[self.waypoint_counter]
+        margin = 0.25
+        x = self.order_pic[self.waypoint_counter]
+        waypoint_x=self.x_position_array[x]
+        waypoint_y=self.x_position_array[x]
 
         if (((waypoint_x - margin) < self.translation_x < (waypoint_x + margin)) and((waypoint_y - margin) < self.translation_y < (waypoint_y + margin))):
             self.waypoint_counter=self.waypoint_counter+1
-            if(self.waypoint_counter==4):
+            if(self.waypoint_counter==len(self.order_pic)):
                 end_message="land"
-                self.request_land.publish(end_message)    
+                self.request_land.publish(end_message) 
+		print("reached")   
 
 
 if __name__ == '__main__':

@@ -72,7 +72,7 @@ class ROSControllerNode(object):
         self.pic_z=[1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3]
 
         self.waypoint_counter=0
-        x=np.loadtxt('/home/ubuntu16/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
+        x=np.loadtxt('/home/mason/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
         self.order_pic=x.astype(int)
         self.x_position_array=[1,4.26,0.88,4.33,7.69,1]
         self.y_position_array=[1,1.23,5.48,8.04,4.24,1]

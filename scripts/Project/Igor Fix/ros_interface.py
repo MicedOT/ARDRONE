@@ -201,12 +201,13 @@ class ROSControllerNode(object):
            
     def mission_planner(self,random):
         margin = 0.05
-        waypoint_x=self.x_position_array[self.waypoint_counter]
-        waypoint_y=self.x_position_array[self.waypoint_counter]
+        x = self.order_pic[self.waypoint_counter]
+        waypoint_x=self.x_position_array[x]
+        waypoint_y=self.x_position_array[x]
 
         if (((waypoint_x - margin) < self.translation_x < (waypoint_x + margin)) and((waypoint_y - margin) < self.translation_y < (waypoint_y + margin))):
             self.waypoint_counter=self.waypoint_counter+1
-            if(self.waypoint_counter==4):
+            if(self.waypoint_counter==len(self.order_pic)):
                 end_message="land"
                 self.request_land.publish(end_message)    
 

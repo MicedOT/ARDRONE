@@ -64,7 +64,9 @@ class ROSDesiredPositionGenerator(object):
         #self.order_pic=[1,2,3,4]
         x=np.loadtxt('/home/mason/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
         self.order_pic=x.astype(int)
-        
+        b= np.array([0])
+	self.order_pic=np.concatenate((self.order_pic, b), axis=None)
+        #print(self.order_pic)
         self.x_array=[1,4.26,0.88,4.33,7.69]
         self.y_array=[1,1.23,5.48,8.04,4.24]
         self.angle_orientation=[0,-1.26,0.12,-0.717,2.11]
@@ -193,7 +195,7 @@ class ROSDesiredPositionGenerator(object):
             x_g = self.x_array[n]
             y_g = self.y_array[n]
             angle_g = self.angle_orientation[n]
-            angle_g = angle_g+np.pi
+            angle_g = angle_g+np.pi/2
             #call RRT from rrt.py
             rrt = RRT(start=[x_s, y_s], goal=[x_g, y_g], rand_area=[0, 9], obstacle_list=self.obstacleList)
             path = rrt.planning(animation=False)
@@ -220,13 +222,22 @@ class ROSDesiredPositionGenerator(object):
             #linear interpolation of orientation
             n_z_euler=np.linspace(angle_s , angle_g, m*num_point)
             Z_euler=np.concatenate([Z_euler,n_z_euler])
+            
+            #Adding the stopping points
+            stop_points=100
+            n_x = x_g*np.ones(stop_points)
+            n_y = y_g*np.ones(stop_points)
+            X = np.concatenate([X,n_x])
+            Y = np.concatenate([Y,n_y])
+            n_z_euler=angle_g*np.ones(stop_points)
+            Z_euler=np.concatenate([Z_euler,n_z_euler])    
 
             #update start point
             x_s = x_g
             y_s = y_g
             angle_s = angle_g
         
-        Z = np.ones(len(X))*1.3
+        Z = np.ones(len(X))*1.7
         X_euler = np.linspace(0, 0 , len(X))
         Y_euler = np.linspace(0, 0 , len(X))
         #print(X)

@@ -4,6 +4,8 @@ import pandas as pd
 
 from tf.transformations import euler_from_quaternion
 
+debugrun=False
+
 def camera_matrix():
     # K(given)
     cam_matrix = [[604.62,   0.00, 320.5], 
@@ -63,27 +65,25 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
     R =eulerAnglesToRotationMatrix(roll_angle,pitch_angle,yaw_angle)
     
     x_ground=np.tan(roll_angle)
-    #print(x_ground)
+    
     y_ground=np.tan(pitch_angle)
-    #print(y_ground)
+    
     hyp=np.sqrt(np.power(x_ground,2)+np.power(y_ground,2))
     dist_ang=hyp    
     top_angle=np.arctan(dist_ang) 
-    #print(top_angle)   
-    #top_angle=0
+     
+    
     #cg input of ball
     pixel_x = x
     pixel_y = y
-    #print(pixel_x)
-    #print(pixel_y)
 
-    camera_loc_x = 320
-    camera_loc_y = 180
+    if(debugrun==True):
+        print(x_ground)
+        print(y_ground)
+        print(top_angle)  
+        print(pixel_x)
+        print(pixel_y)
 
-    #difference 
-
-    diff_x = camera_loc_x - pixel_x
-    diff_y = -(camera_loc_y - pixel_y)
 
     pixel_delta = [[pixel_x],[pixel_y],[1]]
 
@@ -91,26 +91,31 @@ def image_to_frame(x,y,translation_x,translation_y,translation_z,rotation_x,rota
 
     p_matrix = np.matrix([[0,-1,0],[-1,0,0],[0,0,-1]])
     pt_matrix = np.matrix([[0],[0.0125],[-0.025]])
-    #print(k_matrix)
-    #print(p_matrix)
-    #print(np.shape(pixel_delta))
+    
+    
     k_inv = np.linalg.inv(k_matrix)
     p_inv = np.linalg.inv(p_matrix)
     #distance = k_inv.dot(p_inv.dot(pixel_delta))
     
     distance = k_inv.dot(pixel_delta)
     distance=distance*translation_z/np.cos(top_angle)
-    #print(np.shape(distance))
+    
     distance=pt_matrix+p_matrix.dot(distance)
-    #print(distance)
+    
     translation_matrix=[[translation_x],[translation_y],[translation_z]]
-    #print(translation_matrix)
-    #print(np.shape(translation_matrix))
+    
     [[delta_x],[delta_y],[delta_z]] = distance
     ball_location =  translation_matrix+ R.dot(distance)
-    #print(np.shape(ball_location))
-
-    #print(ball_location)
+    if(debugrun==True):
+        print(k_matrix)
+        print(p_matrix)
+        print(np.shape(pixel_delta))
+        print(distance)
+        print(np.shape(distance))
+        print(np.shape(ball_location))
+        print(translation_matrix)
+        print(np.shape(translation_matrix))
+        print(ball_location)
 
     return ball_location
 

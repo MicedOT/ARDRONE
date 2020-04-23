@@ -14,6 +14,7 @@ Phase 1
   Transformation
   Outputs
   Miscellaneous
+  Metadata
 
 Phase 2
   Gazebo

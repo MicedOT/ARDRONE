@@ -40,12 +40,9 @@ def find_center(frame):
     # ball in the HSV color space, then initialize the
     # list of tracked points
     #HSV 150,240,120
-    blueLower = (120, 250,250) #45, 50, 15 150, 230,110
-    blueUpper = ( 125, 255,255) #100, 245, 70 170, 250,130
+    blueLower = (120, 250,250) 
+    blueUpper = ( 125, 255,255) 
 
-    #RGB
-    #blueLower = (20,35,0) #45, 50, 15
-    #blueUpper = (50,55,15) #100, 245, 70
 
     #frame = cv2.imread(filename)
     blurred = cv2.GaussianBlur(frame, (11, 11), 0)

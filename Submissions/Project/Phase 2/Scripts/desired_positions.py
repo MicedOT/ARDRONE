@@ -17,7 +17,6 @@ from std_msgs.msg import Empty
 
 from rrt import RRT
 
-
 class ROSDesiredPositionGenerator(object):
     """ROS interface for publishing desired positions."""
 
@@ -166,7 +165,6 @@ class ROSDesiredPositionGenerator(object):
         self.Z = np.linspace(origin[2], origin[2], self.number_of_points)
         self.X_euler = np.linspace(0, 0, self.number_of_points)
         self.Y_euler = np.linspace(0, 0, self.number_of_points)
-        #self.Z_euler = np.linspace(-np.pi/2,(3.0/2.0)*np.pi , self.number_of_points)
         start_ang=-np.pi
         end_ang=np.pi
         self.Z_euler = np.linspace(start_ang, end_ang, self.number_of_points)
@@ -240,26 +238,13 @@ class ROSDesiredPositionGenerator(object):
         Z = np.ones(len(X))*1.7
         X_euler = np.linspace(0, 0 , len(X))
         Y_euler = np.linspace(0, 0 , len(X))
-        #print(X)
         
         self.number_of_points=len(X)
         return X, Y, Z, X_euler, Y_euler, Z_euler
         
-
-        #Path = np.array([X, Y, Z, X_euler, Y_euler, Z_euler])
-        #return Path
-
-
-        
     def project(self):
-        #Data = self.rrt_planning()
-        #[self.X, self.Y, self.Z, self.X_euler, self.Y_euler, self.Z_euler] = Data
         self.desired_position_counter=0
         self.X, self.Y, self.Z, self.X_euler, self.Y_euler, self.Z_euler = self.rrt_planning()
-        print(len(self.X))
-        print(len(self.Y_euler))
-        print(len(self.Z_euler))
-        
         
     #Choose Path Type
     def choose_type(self,message):
@@ -290,8 +275,7 @@ class ROSDesiredPositionGenerator(object):
             msg.data="stop"
             
             self.pubToggledes.publish(msg)
-            self.pubLanddes.publish(Empty())
-        
+            self.pubLanddes.publish(Empty())    
 
     #Publish Desired Trajectory
     def send(self,message):
@@ -311,7 +295,6 @@ class ROSDesiredPositionGenerator(object):
         self.desired_position_counter = (self.desired_position_counter + 1)%self.number_of_points
         
         self.pub_pos_des.publish(msg) 
-
 
     pass
 

@@ -16,6 +16,7 @@ from tf.transformations import quaternion_from_euler
 from std_msgs.msg import Empty
 
 from rrt import RRT
+import os
 
 class ROSDesiredPositionGenerator(object):
     """ROS interface for publishing desired positions."""
@@ -61,23 +62,24 @@ class ROSDesiredPositionGenerator(object):
 
         #self.order_pic=[3,2,1,4]
         #self.order_pic=[1,2,3,4]
-        x=np.loadtxt('/home/mason/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
+
+        x=np.loadtxt('/home/ubuntu16/aer1217/labs/src/aer1217_ardrone_simulator/scripts/order.txt',delimiter=None)
         self.order_pic=x.astype(int)
         b= np.array([0])
-	self.order_pic=np.concatenate((self.order_pic, b), axis=None)
+        self.order_pic=np.concatenate((self.order_pic, b), axis=None)
         #print(self.order_pic)
-        self.x_array=[1,4.26,0.88,4.33,7.69]
+        self.x_array=[1,4.27,0.88,4.33,7.69]
         self.y_array=[1,1.23,5.48,8.04,4.24]
         self.angle_orientation=[0,-1.26,0.12,-0.717,2.11]
 
         self.obstacleList = [
-        (6.23, 1.9, 1.7),
-        (4.48, 3.44, 1.52),
-        (7.51, 7.14, 1.46),
-        (0.59,8.35, 1.25),
-        (2.19, 7.31, 1.1),
-        (1.43,2.5, 0.98),
-        (5.8, 6.53 , 0.95)
+        (6.22, 1.9, 1.49),
+        (4.48, 3.44, 1.26),
+        (7.55, 7.11, 1.20),
+        (0.63,8.34, 1.04),
+        (2.20, 7.32, 0.87),
+        (1.41,2.53, 0.78),
+        (5.81, 6.55 , 0.75)
     ]  # [x, y, radius]
 
 
@@ -137,7 +139,7 @@ class ROSDesiredPositionGenerator(object):
     def ready(self):
         self.X = np.ones(self.number_of_points)*1
         self.Y = np.ones(self.number_of_points)*1
-        self.Z = np.ones(self.number_of_points)*1.7
+        self.Z = np.ones(self.number_of_points)*2.0
 
         self.X_euler = np.linspace(0, 0 , self.number_of_points)
         self.Y_euler = np.linspace(0, 0 , self.number_of_points)
@@ -235,7 +237,7 @@ class ROSDesiredPositionGenerator(object):
             y_s = y_g
             angle_s = angle_g
         
-        Z = np.ones(len(X))*1.7
+        Z = np.ones(len(X))*2.0
         X_euler = np.linspace(0, 0 , len(X))
         Y_euler = np.linspace(0, 0 , len(X))
         

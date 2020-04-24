@@ -1602,7 +1602,7 @@
       </model>
       <model name='Red Target_1'>
         <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1.98 1.98 1000</scale>
+        <scale>1.92 1.92 1000</scale>
         <link name='link'>
           <pose frame=''>4.486 3.44 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -1612,7 +1612,7 @@
       </model>
       <model name='Red Target_2'>
         <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1.86 1.86 1000</scale>
+        <scale>1.80 1.80 1000</scale>
         <link name='link'>
           <pose frame=''>7.551 7.117 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
